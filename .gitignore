@@ -1,0 +1,6 @@
+/vendor
+/temp
+config.php
+ngrok.exe
+.phpintel
+log-bd-structure.txt
