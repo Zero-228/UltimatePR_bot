@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Апр 20 2024 г., 13:43
+-- Время создания: Май 22 2024 г., 00:28
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -18,8 +18,23 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- База данных: `taptomine-bot`
+-- База данных: `ultimatepr_bot`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `chanel`
+--
+
+CREATE TABLE `chanel` (
+  `chanelId` bigint(25) NOT NULL,
+  `name` varchar(250) NOT NULL,
+  `type` varchar(12) NOT NULL,
+  `status` varchar(10) NOT NULL DEFAULT 'active',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -35,12 +50,6 @@ CREATE TABLE `log` (
   `context` varchar(15) NOT NULL COMMENT '(callback/comand/..)',
   `message` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- ССЫЛКИ ТАБЛИЦЫ `log`:
---   `entityId`
---       `user` -> `userId`
---
 
 -- --------------------------------------------------------
 
@@ -63,13 +72,31 @@ CREATE TABLE `user` (
   `banned` varchar(3) NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- ССЫЛКИ ТАБЛИЦЫ `user`:
+-- Структура таблицы `users_in_chanels`
 --
+
+CREATE TABLE `users_in_chanels` (
+  `id` int(11) NOT NULL,
+  `userId` bigint(20) NOT NULL,
+  `chanelId` bigint(25) NOT NULL,
+  `role` varchar(6) NOT NULL DEFAULT 'user',
+  `status` varchar(10) NOT NULL DEFAULT 'admin',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Индексы сохранённых таблиц
 --
+
+--
+-- Индексы таблицы `chanel`
+--
+ALTER TABLE `chanel`
+  ADD PRIMARY KEY (`chanelId`);
 
 --
 -- Индексы таблицы `log`
@@ -85,6 +112,14 @@ ALTER TABLE `user`
   ADD PRIMARY KEY (`userId`);
 
 --
+-- Индексы таблицы `users_in_chanels`
+--
+ALTER TABLE `users_in_chanels`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `bound_ibfk_1` (`chanelId`),
+  ADD KEY `bound_ibfk_2` (`userId`);
+
+--
 -- AUTO_INCREMENT для сохранённых таблиц
 --
 
@@ -95,14 +130,33 @@ ALTER TABLE `log`
   MODIFY `logId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `users_in_chanels`
+--
+ALTER TABLE `users_in_chanels`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- Ограничения внешнего ключа сохраненных таблиц
 --
 
 --
--- Ограничения внешнего ключа таблицы `log`
+-- Ограничения внешнего ключа таблицы `chanel`
 --
-ALTER TABLE `log`
-  ADD CONSTRAINT `log_ibfk_1` FOREIGN KEY (`entityId`) REFERENCES `user` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `chanel`
+  ADD CONSTRAINT `chanel_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `log` (`entityId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Ограничения внешнего ключа таблицы `user`
+--
+ALTER TABLE `user`
+  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `log` (`entityId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Ограничения внешнего ключа таблицы `users_in_chanels`
+--
+ALTER TABLE `users_in_chanels`
+  ADD CONSTRAINT `bound_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `bound_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

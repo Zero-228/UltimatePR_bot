@@ -1,5 +1,10 @@
 <?php 
 
+use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
+use SergiX44\Nutgram\Telegram\Types\Keyboard\KeyboardButton;
+
 function debug($things, $decode=false, $clear=false) {
 
     $directory_path = $_SERVER['DOCUMENT_ROOT'] . '/temp';
@@ -44,6 +49,64 @@ function createUser($user){
     mysqli_close($dbCon);
 }
 
+function checkUserStatus($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT deleted, banned FROM user WHERE userId='$userId'");
+    $checkStatus = mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+    if ($checkStatus) {
+        if ($checkStatus['banned'] == 'yes') {
+            return 'banned';
+        } elseif ($checkStatus['deleted'] == 'yes') {
+            return 'deleted';
+        } else {
+            return 'active';
+        }
+    } else {
+        error_log('Error checking user\'s status: unknown user '.$userId);
+    }
+}
+
+function getUsername($userId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $result = mysqli_query($dbCon, "SELECT username FROM user WHERE userId='$userId'");
+    if ($result && mysqli_num_rows($result) > 0) {
+        $username = mysqli_fetch_assoc($result);
+        mysqli_free_result($result);
+        mysqli_close($dbCon);
+        return $username['username'];
+    } else {
+        mysqli_close($dbCon);
+        return msg("friend", $bot->userId());
+    }
+}
+
+function checkRole($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $roleQuery = mysqli_query($dbCon, "SELECT role FROM user WHERE userId='$userId'");
+    $roleNumRow = mysqli_num_rows($roleQuery);
+    if ($roleNumRow == 1) {
+        $role = mysqli_fetch_assoc($roleQuery);
+        $role = $role['role'];
+        return $role;
+    } else {
+        return "no user";
+    }
+    mysqli_close($dbCon);
+}
+
+function userBlockedBot($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "UPDATE user SET deleted='yes' WHERE userId='$userId'");
+    mysqli_close($dbCon);
+}
+
+function userActivatedBot($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "UPDATE user SET deleted='no' WHERE userId='$userId'");
+    mysqli_close($dbCon);
+}
+
 function createLog($timestamp, $entity, $entityId, $context, $message) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $createLog = mysqli_query($dbCon, "INSERT INTO log (createdAt, entity, entityId, context, message) VALUES ('$timestamp', '$entity','$entityId','$context','$message')");
@@ -70,4 +133,73 @@ function changeLanguage($userId, $newLang) {
     mysqli_close($dbCon);
 }
 
+function constructMenuButtons($lang) {
+    $keyboard = ReplyKeyboardMarkup::make(resize_keyboard: true,)
+    ->addRow(KeyboardButton::make(msg('menu_config', $lang)))
+    ->addRow(KeyboardButton::make(msg('menu_checkSub', $lang)), KeyboardButton::make(msg('menu_statistic', $lang)),)
+    ->addRow(KeyboardButton::make(msg('menu_unlock', $lang)), KeyboardButton::make(msg('menu_info', $lang)),);
+
+    return $keyboard;
+}
+
+function checkChanel($chanelId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $row = mysqli_query($dbCon, "SELECT chanelId FROM chanel WHERE chanelId='$chanelId'");
+    $numRow = mysqli_num_rows($row);
+    if ($numRow == 0) { return 'no_such_chanel'; } 
+    elseif ($numRow == 1) { return 'one_chanel'; } 
+    else { return false; error_log("ERROR! TWIN CHANEL IN DB!");}
+    mysqli_close($dbCon);
+}
+
+function createChanel($chanelId, $name, $type){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeNow = TIME_NOW;
+    mysqli_query($dbCon, "INSERT INTO chanel (chanelId, name, type, updated_at, created_at) VALUES ($chanelId, $name, $type, $timeNow, $timeNow)");
+    mysqli_close($dbCon);
+}
+
+function checkUserInChanel($userId, $chanelId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $row = mysqli_query($dbCon, "SELECT * FROM users_in_chanels WHERE chanelId='$chanelId' AND userId='$userId'");
+    $numRow = mysqli_num_rows($row);
+    if ($numRow == 0) { return 'user_not_added'; } 
+    elseif ($numRow == 1) { 
+        $user = mysqli_fetch_assoc($row);
+        $response = [
+            'role' => $user['role'],
+            'status' => $user['status'],
+            'updated_at' => $user['updated_at'],
+            'created_at' => $user['created_at'],
+        ];
+        return $response;
+    } 
+    else { return false; error_log("ERROR! TWIN USER IN CHANEL!");}
+    mysqli_close($dbCon);
+}
+
+function checkUsersChanel($userId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $row = mysqli_query($dbCon, "SELECT chanelId, role FROM users_in_chanels WHERE (userId='$userId' AND role='admin') OR (userId='$userId' AND role='owner')");
+    $numRow = mysqli_num_rows($row);
+    if ($numRow == 0) { return 'chanel_not_found'; } 
+    else { 
+        $info = mysqli_fetch_assoc($row);
+        $response = [];
+        foreach ($info as $data) {
+            $chanelId = $data['chanelId'];
+            $role = $data['role'];
+            $chanelRow = mysqli_query($dbCon, "SELECT name FROM chanel WHERE chanelId='$chanelId'");
+            $chanelInfo = mysqli_fetch_assoc($chanelRow);
+            $name = $chanelInfo['name'];
+            $response = [
+                'chanelId' => $chanelId,
+                'role' => $role,
+                'name' => $name,
+            ];
+        }
+        return $response;
+    }
+    mysqli_close($dbCon);
+}
 ?>
