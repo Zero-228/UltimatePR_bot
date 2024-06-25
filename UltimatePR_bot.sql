@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Май 22 2024 г., 00:28
+-- Время создания: Июн 25 2024 г., 10:52
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -29,12 +29,17 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `chanel` (
   `chanelId` bigint(25) NOT NULL,
-  `name` varchar(250) NOT NULL,
+  `title` varchar(250) NOT NULL,
+  `username` varchar(250) NOT NULL,
   `type` varchar(12) NOT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'active',
   `updated_at` datetime NOT NULL,
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `chanel`:
+--
 
 -- --------------------------------------------------------
 
@@ -50,6 +55,10 @@ CREATE TABLE `log` (
   `context` varchar(15) NOT NULL COMMENT '(callback/comand/..)',
   `message` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `log`:
+--
 
 -- --------------------------------------------------------
 
@@ -72,6 +81,10 @@ CREATE TABLE `user` (
   `banned` varchar(3) NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- ССЫЛКИ ТАБЛИЦЫ `user`:
+--
+
 -- --------------------------------------------------------
 
 --
@@ -82,11 +95,19 @@ CREATE TABLE `users_in_chanels` (
   `id` int(11) NOT NULL,
   `userId` bigint(20) NOT NULL,
   `chanelId` bigint(25) NOT NULL,
-  `role` varchar(6) NOT NULL DEFAULT 'user',
-  `status` varchar(10) NOT NULL DEFAULT 'admin',
+  `role` varchar(20) NOT NULL DEFAULT 'user',
+  `status` varchar(12) NOT NULL,
   `updated_at` datetime NOT NULL,
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `users_in_chanels`:
+--   `chanelId`
+--       `chanel` -> `chanelId`
+--   `userId`
+--       `user` -> `userId`
+--
 
 --
 -- Индексы сохранённых таблиц
@@ -138,18 +159,6 @@ ALTER TABLE `users_in_chanels`
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
-
---
--- Ограничения внешнего ключа таблицы `chanel`
---
-ALTER TABLE `chanel`
-  ADD CONSTRAINT `chanel_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `log` (`entityId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
-
---
--- Ограничения внешнего ключа таблицы `user`
---
-ALTER TABLE `user`
-  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `log` (`entityId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Ограничения внешнего ключа таблицы `users_in_chanels`

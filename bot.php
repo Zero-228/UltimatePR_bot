@@ -16,6 +16,7 @@ use SergiX44\Nutgram\Conversations\InlineMenu;
 use SergiX44\Nutgram\Conversations\Conversation;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
+use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
@@ -26,6 +27,9 @@ $bot->setRunningMode(Webhook::class);
 $bot->setWebhook(WEBHOOK_URL);
 
     // $inlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('change_language', lang($bot->userId())), null, null, 'callback_change_lang'))->addRow(InlineKeyboardButton::make(msg('cancel', lang($bot->userId())), null,null, 'callback_cancel'));
+
+$data = file_get_contents('php://input');
+writeLogFile($data, true);
 
 $bot->onCommand('start', function(Nutgram $bot) {
     $checkUser = checkUser($bot->userId());
@@ -48,6 +52,58 @@ $bot->onCommand('start', function(Nutgram $bot) {
         $bot->sendMessage(msg('welcome_back', $lang), reply_markup: constructMenuButtons($lang));
     } else {
         $bot->sendMessage('WTF are you?');
+    }
+});
+
+$bot->onMyChatMember(function(Nutgram $bot){
+    $lang = lang($bot->userId());
+    $role = checkRole($bot->userId());
+    $myChatMember = $bot->update()->my_chat_member;
+    $newStatus = $myChatMember->new_chat_member->status;
+    $newStatus = json_encode($newStatus);
+    error_log($newStatus);
+
+    if ($newStatus == '"kicked"' || $newStatus == '"left"' ) {
+        updateChanelStatus($bot->chatId(), 'unactive');
+    } elseif($newStatus == '"administrator"' || $newStatus == '"user"') {
+        $chanelStatus = checkChanel($bot->chatId());
+        sleep(1);
+        if ($chanelStatus == 'no_such_chanel') {
+            $chanel_info = get_object_vars($bot->chat());
+            createChanel($chanel_info);
+            sleep(1);
+            $admins = $bot->getChatAdministrators($bot->chatId());
+            writeLogFile($admins);
+            if ($admins) {
+                foreach ($admins as $administrator) {
+                    if (!$administrator->user->is_bot) {
+                        sleep(1);
+                        $userExistence = checkUser($administrator->user->id);
+                        if ($userExistence == 'no_such_user') {
+                            createUser($administrator->user);
+                        }
+                        $role = json_encode($administrator->status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                        $role = trim($role, '"');
+                        addUserInChanel([
+                            'userId' => $administrator->user->id,
+                            'chanelId' => $bot->chatId(),
+                            'role' => $role,
+                        ]);
+                    }
+                }
+            }
+            $bot->sendMessage(msg('chanel_added', $lang), chat_id: $bot->userId());
+            createLog(TIME_NOW, $role, $bot->userId(), 'added chanel', $bot->chatId());
+        } elseif ($chanelStatus == 'one_chanel') {
+            if ($bot->userId() != BOT_ID) {
+                updateChanelStatus($bot->chatId(), 'active');
+                $bot->sendMessage(msg('chanel_exists', $lang), chat_id: $bot->userId());
+            }
+        } else {
+            $bot->sendMessage(text: 'Twin chanel. ID - '.$bot->chatId(), chat_id: ADMIN_ID);
+        }
+    } else {
+        $bot->sendMessage(text: 'So why?', chat_id: ADMIN_ID);
     }
 });
 
@@ -89,6 +145,9 @@ $bot->onMessage(function (Nutgram $bot) {
         $colorMenu = new ChooseColorMenu($bot);
         $colorMenu->start($bot);
     } elseif(str_contains($text, msg('menu_config', $lang))) {
+        if (isset($chanelConfigMenu)) {
+            $chanelConfigMenu->none($bot);
+        }
         $chanelConfigMenu = new ChanelSettings($bot);
         $chanelConfigMenu->start($bot);
     } elseif(str_contains($text, msg('menu_checkSub', $lang))) {
@@ -101,7 +160,7 @@ $bot->onMessage(function (Nutgram $bot) {
         $bot->sendMessage(msg('WIP', $lang));
     } else {
         $msg = "You send: ".$bot->message()->text;
-        $bot->sendMessage($msg);
+        //$bot->sendMessage($msg);
     }
 });
 

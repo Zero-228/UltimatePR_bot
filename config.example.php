@@ -6,7 +6,9 @@ define("_IMG", $_SERVER['DOCUMENT_ROOT']."/img/");
 
 define("BOT_TOKEN", "");
 define("WEBHOOK_URL", "");
-define("WEB_APP", "");
+define("BOT_USERNAME", "");
+define("BOT_ID", "");
+define("ADMIN_ID", "");
 
 define("DB_HOST", "");
 define("DB_USER", "");

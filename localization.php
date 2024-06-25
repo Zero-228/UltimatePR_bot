@@ -44,6 +44,10 @@ $languages = array(
 		'menu_unlock' => '🔓 Unlock',
 		'menu_info' => 'Info 📢',
 		'btn_statistic' => 'Statistics 📊',
+		'add_chanel_btn' => 'Add chanel/group 🏵',
+		'chanel_added' => 'Chanel added',
+		'chanel_exists' => 'Chanel reconnected to bot',
+		'bot_kicked' => 'Bot kicked from chanel',
 	),
 	'ru' => array(
 		'WIP' => "Данная функция находится в процессе \nразработки.Спасибо за ваше терпение. 🧑‍💻",
@@ -61,6 +65,10 @@ $languages = array(
 		'menu_unlock' => '🔓 Разблокировать',
 		'menu_info' => 'Инфо 📢',
 		'btn_statistic' => 'Статистика 📊',
+		'add_chanel_btn' => 'Добавить группу/канал 🏵',
+		'chanel_added' => 'Chanel added',
+		'chanel_exists' => 'Chanel reconnected to bot',
+		'bot_kicked' => 'Bot kicked from chanel',
 	),
 	'uk' => array(
 		'WIP' => "Ця функція знаходиться в процессi \nрозробки.Дякую за ваше терпіння. 🧑‍💻",
@@ -78,6 +86,10 @@ $languages = array(
 		'menu_unlock' => '🔓 Разблокувати',
 		'menu_info' => 'Iнфо 📢',
 		'btn_statistic' => 'Статистика 📊',
+		'add_chanel_btn' => 'Додати групу/канал 🏵',
+		'chanel_added' => 'Chanel added',
+		'chanel_exists' => 'Chanel reconnected to bot',
+		'bot_kicked' => 'Bot kicked from chanel',
 	),
 );
 

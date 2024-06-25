@@ -136,7 +136,7 @@ function changeLanguage($userId, $newLang) {
 function constructMenuButtons($lang) {
     $keyboard = ReplyKeyboardMarkup::make(resize_keyboard: true,)
     ->addRow(KeyboardButton::make(msg('menu_config', $lang)))
-    ->addRow(KeyboardButton::make(msg('menu_checkSub', $lang)), KeyboardButton::make(msg('menu_statistic', $lang)),)
+    ->addRow(KeyboardButton::make(msg('menu_checkSub', $lang)), KeyboardButton::make(msg('menu_promote', $lang)),)
     ->addRow(KeyboardButton::make(msg('menu_unlock', $lang)), KeyboardButton::make(msg('menu_info', $lang)),);
 
     return $keyboard;
@@ -152,10 +152,18 @@ function checkChanel($chanelId){
     mysqli_close($dbCon);
 }
 
-function createChanel($chanelId, $name, $type){
+function createChanel($chanel){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $timeNow = TIME_NOW;
-    mysqli_query($dbCon, "INSERT INTO chanel (chanelId, name, type, updated_at, created_at) VALUES ($chanelId, $name, $type, $timeNow, $timeNow)");
+    $type = $chanel['type']->value;
+    mysqli_query($dbCon, "INSERT INTO chanel (chanelId, title, username, type, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $chanel['title'] . "', '" . $chanel['username'] . "', '" . $type . "', '" . $timeNow . "', '" . $timeNow . "')");
+    mysqli_close($dbCon);
+}
+
+function updateChanelStatus($chanelId, $status){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeNow = TIME_NOW;
+    mysqli_query($dbCon, "UPDATE chanel SET status='$status' WHERE chanelId='$chanelId'");
     mysqli_close($dbCon);
 }
 
@@ -178,28 +186,56 @@ function checkUserInChanel($userId, $chanelId){
     mysqli_close($dbCon);
 }
 
-function checkUsersChanel($userId){
+function addUserInChanel($user){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    $row = mysqli_query($dbCon, "SELECT chanelId, role FROM users_in_chanels WHERE (userId='$userId' AND role='admin') OR (userId='$userId' AND role='owner')");
+    $timeNow = TIME_NOW;
+    mysqli_query($dbCon, "INSERT INTO users_in_chanels (userId, chanelId, role, status, updated_at, created_at) VALUES ('" . $user['userId'] . "', '" . $user['chanelId'] . "', '" . $user['role'] . "', 'active', '" . $timeNow . "', '" . $timeNow . "')");
+    mysqli_close($dbCon);
+}
+
+function checkUsersChanel($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    
+    $row = mysqli_query($dbCon, "SELECT chanelId, role FROM users_in_chanels WHERE (userId='$userId' AND role='admin') OR (userId='$userId' AND role='creator')");
     $numRow = mysqli_num_rows($row);
-    if ($numRow == 0) { return 'chanel_not_found'; } 
-    else { 
-        $info = mysqli_fetch_assoc($row);
+    
+    if ($numRow == 0) {
+        mysqli_close($dbCon);
+        return 'chanel_not_found';
+    } else {
         $response = [];
-        foreach ($info as $data) {
-            $chanelId = $data['chanelId'];
-            $role = $data['role'];
-            $chanelRow = mysqli_query($dbCon, "SELECT name FROM chanel WHERE chanelId='$chanelId'");
+        
+        while ($info = mysqli_fetch_assoc($row)) {
+            $chanelId = $info['chanelId'];
+            $role = $info['role'];
+            
+            $chanelRow = mysqli_query($dbCon, "SELECT title FROM chanel WHERE chanelId='$chanelId'");
             $chanelInfo = mysqli_fetch_assoc($chanelRow);
-            $name = $chanelInfo['name'];
-            $response = [
+            $name = $chanelInfo['title'];
+            
+            $response[] = [
                 'chanelId' => $chanelId,
                 'role' => $role,
                 'name' => $name,
             ];
         }
+        
+        mysqli_close($dbCon);
         return $response;
     }
-    mysqli_close($dbCon);
+}
+
+
+function writeLogFile($string, $clear = false){
+    $timeNow = TIME_NOW;
+    $log_file_name = __DIR__."/temp/message.txt";
+    if($clear == false) {
+        $now = date("Y-m-d H:i:s");
+        file_put_contents($log_file_name, $timeNow." ".print_r($string, true)."\r\n", FILE_APPEND);
+    }
+    else {
+        file_put_contents($log_file_name, '');
+        file_put_contents($log_file_name, $timeNow." ".print_r($string, true)."\r\n", FILE_APPEND);
+    }
 }
 ?>
