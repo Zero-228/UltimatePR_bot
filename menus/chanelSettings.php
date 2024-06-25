@@ -1,4 +1,17 @@
-<?php 
+<?php
+/**
+ * UltimatePR Chatbot
+ * 
+ * Licensed under the Simple Commercial License.
+ * 
+ * Copyright (c) 2024 Nikita Shkilov nikshkilov@yahoo.com
+ * 
+ * All rights reserved.
+ * 
+ * This file is part of PenaltyPuff bot. The use of this file is governed by the
+ * terms of the Simple Commercial License, which can be found in the LICENSE file
+ * in the root directory of this project.
+ */
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../localization.php';
 require_once __DIR__ . '/../functions.php';
@@ -28,7 +41,8 @@ class ChanelSettings extends InlineMenu
         $deep_link = $deeplink->startGroup(BOT_USERNAME, '', $adminConf);
         if ($groups == 'chanel_not_found') {
             //$this->next('addChanel');
-            $this->menuText("You don't have groups to administrate. Pls add one")->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link))->orNext('none')->showMenu();
+            $this->menuText("You don't have groups to administrate. Pls add one")->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link))
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
         } else {
             $this->menuText(msg('select_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link));
             foreach ($groups as $chanel) {
@@ -38,22 +52,26 @@ class ChanelSettings extends InlineMenu
                 $callback = $id.'/'.$role.'@handleChanel';
                 $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
             }
-            $this->orNext('none')->showMenu();
+            $this
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
         }
-    }
-
-    public function addChanel(Nutgram $bot)
-    {
-        
     }
 
     public function handleChanel(Nutgram $bot)
     {
-        
+        $lang = lang($bot->userId());
+        //Обрабатываем даныне из колбэка 
+        list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
+        $chanelTitle = getChanelTitle($chanelId);
+        $text = $chanelTitle."\n\n"."chanel settings";
+        $this
+            ->clearButtons()->menuText($text)
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
     }
 
     public function none(Nutgram $bot)
     {
+        $bot->sendMessage(msg('canceled', lang($bot->userId())));
         $this->end();
     }
 }

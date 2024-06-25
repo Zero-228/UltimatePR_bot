@@ -1,5 +1,18 @@
 <?php 
 
+/**
+ * UltimatePR Chatbot
+ * 
+ * Licensed under the Simple Commercial License.
+ * 
+ * Copyright (c) 2024 Nikita Shkilov nikshkilov@yahoo.com
+ * 
+ * All rights reserved.
+ * 
+ * This file is part of PenaltyPuff bot. The use of this file is governed by the
+ * terms of the Simple Commercial License, which can be found in the LICENSE file
+ * in the root directory of this project.
+ */
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\ReplyKeyboardMarkup;
@@ -223,6 +236,15 @@ function checkUsersChanel($userId) {
         mysqli_close($dbCon);
         return $response;
     }
+}
+
+
+function getChanelTitle($chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query_title = mysqli_query($dbCon, "SELECT title FROM chanel WHERE chanelId='$chanelId'");
+    $fetch_title = mysqli_fetch_array($query_title);
+    return $fetch_title['0'];
+    mysqli_close($dbCon);
 }
 
 
