@@ -103,9 +103,10 @@ class SupportMenu extends InlineMenu
         } elseif(str_contains($text, msg('menu_promote', $lang))) {
             $this->end();
             $bot->sendMessage(msg('WIP', $lang));
-        } elseif(str_contains($text, msg('menu_unlock', $lang))) {
+        } elseif(str_contains($text, msg('change_language', $lang))) {
             $this->end();
-            $bot->sendMessage(msg('WIP', $lang));
+            $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
+            $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
         } elseif(str_contains($text, msg('menu_support', $lang))) {
             $this->end();
             $supportMenu = new SupportMenu($bot);

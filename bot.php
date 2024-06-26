@@ -38,8 +38,6 @@ $bot = new Nutgram(BOT_TOKEN, new Configuration(cache: $cache));
 $bot->setRunningMode(Webhook::class);
 $bot->setWebhook(WEBHOOK_URL);
 
-    // $inlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('change_language', lang($bot->userId())), null, null, 'callback_change_lang'))->addRow(InlineKeyboardButton::make(msg('cancel', lang($bot->userId())), null,null, 'callback_cancel'));
-
 $data = file_get_contents('php://input');
 writeLogFile($data, true);
 
@@ -119,16 +117,13 @@ $bot->onMyChatMember(function(Nutgram $bot){
     }
 });
 
-$bot->onCallbackQueryData('callback_change_lang', function (Nutgram $bot) {
-    $role = checkRole($bot->userId());
-    createLog(TIME_NOW, $role, $bot->userId(), 'callback', 'change language');
-    $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
-    $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
-    $bot->answerCallbackQuery();
-});
-
 $bot->onCallbackQueryData('callback_change_lang_to {param}', function (Nutgram $bot, $param) {
     changeLanguage($bot->userId(), $param);
+    try {
+        $bot->deleteMessage($bot->userId(), $bot->messageId());
+    } catch (Exception $e) {
+        error_log($e);
+    }
     $bot->sendMessage(msg('language_changed', lang($bot->userId())));
     $bot->answerCallbackQuery();
 });
@@ -164,13 +159,14 @@ $bot->onMessage(function (Nutgram $bot) {
         $bot->sendMessage(msg('WIP', $lang));
     } elseif(str_contains($text, msg('menu_promote', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
-    } elseif(str_contains($text, msg('menu_unlock', $lang))) {
-        $bot->sendMessage(msg('WIP', $lang));
+    } elseif(str_contains($text, msg('change_language', $lang))) {
+        $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
+        $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
     } elseif(str_contains($text, msg('menu_support', $lang))) {
         $supportMenu = new SupportMenu($bot);
         $supportMenu->start($bot);
     } else {
-        $msg = "You send: ".$bot->message()->text;
+        //$msg = "You send: ".$bot->message()->text;
         //$bot->sendMessage($msg);
     }
 });

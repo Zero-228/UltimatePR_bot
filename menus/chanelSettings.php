@@ -57,7 +57,7 @@ class ChanelSettings extends InlineMenu
         }
     }
 
-    public function handleChanel(Nutgram $bot)
+    protected function handleChanel(Nutgram $bot)
     {
         $lang = lang($bot->userId());
         //Обрабатываем даныне из колбэка 
@@ -66,7 +66,84 @@ class ChanelSettings extends InlineMenu
         $text = $chanelInfo['title']."\n\n"."chanel settings";
         $this
             ->clearButtons()->menuText($text)
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_statistic', $lang), callback_data: $chanelId.'@chanelStatistics'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_subscription', $lang), callback_data: $chanelId.'@chanelSubscription'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_capcha', $lang), callback_data: '@chanelCapcha'),InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: '@chanelAntispam'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_messages', $lang), callback_data: $chanelId.'@chanelMessages'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_unlock', $lang), callback_data: '@chanelUnlock'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
+    }
+
+    protected function chanelStatistics(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelSubscription(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelMessages(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelCapcha(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelAntispam(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelUnlock(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
     }
 
     public function cancel(Nutgram $bot)
@@ -93,9 +170,10 @@ class ChanelSettings extends InlineMenu
         } elseif(str_contains($text, msg('menu_promote', $lang))) {
             $this->end();
             $bot->sendMessage(msg('WIP', $lang));
-        } elseif(str_contains($text, msg('menu_unlock', $lang))) {
+        } elseif(str_contains($text, msg('change_language', $lang))) {
             $this->end();
-            $bot->sendMessage(msg('WIP', $lang));
+            $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
+            $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
         } elseif(str_contains($text, msg('menu_support', $lang))) {
             $this->end();
             $supportMenu = new SupportMenu($bot);

@@ -150,7 +150,7 @@ function constructMenuButtons($lang) {
     $keyboard = ReplyKeyboardMarkup::make(resize_keyboard: true,)
     ->addRow(KeyboardButton::make(msg('menu_config', $lang)))
     ->addRow(KeyboardButton::make(msg('menu_profile', $lang)), KeyboardButton::make(msg('menu_promote', $lang)),)
-    ->addRow(KeyboardButton::make(msg('menu_unlock', $lang)), KeyboardButton::make(msg('menu_support', $lang)),);
+    ->addRow(KeyboardButton::make(msg('change_language', $lang)), KeyboardButton::make(msg('menu_support', $lang)),);
 
     return $keyboard;
 }
@@ -251,6 +251,20 @@ function createSupportMsg($userId, $msg){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $timeNow = TIME_NOW;
     mysqli_query($dbCon, "INSERT INTO support (userId, message, status, updated_at, created_at) VALUES ('$userId', '$msg', 'active', '$timeNow','$timeNow')");
+    mysqli_close($dbCon);
+}
+
+function checkUserInChanelRole($userId, $chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $roleQuery = mysqli_query($dbCon, "SELECT role FROM users_in_chanels WHERE userId='$userId' AND chanelId='$chanelId'");
+    $roleNumRow = mysqli_num_rows($roleQuery);
+    if ($roleNumRow == 1) {
+        $role = mysqli_fetch_assoc($roleQuery);
+        $role = $role['role'];
+        return $role;
+    } else {
+        return "not a user";
+    }
     mysqli_close($dbCon);
 }
 
