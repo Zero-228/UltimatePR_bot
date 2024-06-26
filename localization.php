@@ -14,34 +14,6 @@
  * in the root directory of this project.
  */
 
-
-/*
-require 'localization.php';
-*/
-
-/*
-$inlineKeyboard = InlineKeyboardMarkup::make()
-        ->addRow(InlineKeyboardButton::make(msg('change_language', lang($bot->userId())), null, null, 'callback_change_lang'));
-$bot->sendMessage(msg('welcome', lang($bot->userId())), reply_markup: $inlineKeyboard);
-*/
-
-/*
-$bot->onCallbackQueryData('callback_change_lang', function (Nutgram $bot) {
-    createLog(TIME_NOW, 'user', $bot->userId(), 'callback', 'change language');
-    $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
-    $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
-    $bot->answerCallbackQuery();
-});
-*/
-
-/*
-$bot->onCallbackQueryData('callback_change_lang_to {param}', function (Nutgram $bot, $param) {
-    changeLanguage($bot->userId(), $param);
-    $bot->sendMessage(msg('language_changed', lang($bot->userId())));
-    $bot->answerCallbackQuery();
-});
-*/
-
 $languages = array(
 	'en' => array(
 		'WIP' => "Development of this feature still in \nprogress.Thank you for your patience. 🧑‍💻",
@@ -54,15 +26,17 @@ $languages = array(
 		'cancel' => 'Cancel ❌',
 		'canceled' => '❌ Action canceled ',
 		'menu_config' => 'Settings of group/chanel ⚙️',
-		'menu_checkSub' => '🔺 Subscribes',
+		'menu_profile' => '👤 Profile',
 		'menu_promote' => 'Promote 💸',
 		'menu_unlock' => '🔓 Unlock',
-		'menu_info' => 'Info 📢',
+		'menu_support' => 'Support ℹ️',
 		'btn_statistic' => 'Statistics 📊',
 		'add_chanel_btn' => 'Add chanel/group 🏵',
 		'chanel_added' => 'Chanel added',
 		'chanel_exists' => 'Chanel reconnected to bot',
 		'bot_kicked' => 'Bot kicked from chanel',
+		'no_chanel' => "You don't have groups to administrate. \nPls add one!",
+		'select_chanel' => "Select the group which you want to \nadministrate from the list below.",
 	),
 	'ru' => array(
 		'WIP' => "Данная функция находится в процессе \nразработки.Спасибо за ваше терпение. 🧑‍💻",
@@ -75,15 +49,17 @@ $languages = array(
 		'cancel' => 'Отменить ❌',
 		'canceled' => '❌ Действие отменено ',
 		'menu_config' => 'Настройки группы/канала ⚙️',
-		'menu_checkSub' => '🔺 Подписки',
+		'menu_profile' => '👤 Профиль',
 		'menu_promote' => 'Продвижение 💸',
 		'menu_unlock' => '🔓 Разблокировать',
-		'menu_info' => 'Инфо 📢',
+		'menu_support' => 'Поддержка ℹ️',
 		'btn_statistic' => 'Статистика 📊',
 		'add_chanel_btn' => 'Добавить группу/канал 🏵',
-		'chanel_added' => 'Chanel added',
-		'chanel_exists' => 'Chanel reconnected to bot',
-		'bot_kicked' => 'Bot kicked from chanel',
+		'chanel_added' => 'Группа добавлена',
+		'chanel_exists' => 'Канал переподключён к боту',
+		'bot_kicked' => 'Бот исключён из группы',
+		'no_chanel' => "У вас нет групп для администрирования. \nПожалуйста добавьте одну!",
+		'select_chanel' => "Выберите группу которую вы хотите \nмодерировать из списка ниже.",
 	),
 	'uk' => array(
 		'WIP' => "Ця функція знаходиться в процессi \nрозробки.Дякую за ваше терпіння. 🧑‍💻",
@@ -96,15 +72,17 @@ $languages = array(
 		'cancel' => 'Вiдмiнити ❌',
 		'canceled' => '❌ Подiя вiдмiнена ',
 		'menu_config' => 'Налаштування групи/каналу ⚙️',
-		'menu_checkSub' => '🔺 Пiдписки',
+		'menu_profile' => '👤 Профiль',
 		'menu_promote' => 'Просування 💸',
-		'menu_unlock' => '🔓 Разблокувати',
-		'menu_info' => 'Iнфо 📢',
+		'menu_unlock' => '🔓 Разблокувати',		
+		'menu_support' => 'Пiдтримка ℹ️',
 		'btn_statistic' => 'Статистика 📊',
 		'add_chanel_btn' => 'Додати групу/канал 🏵',
-		'chanel_added' => 'Chanel added',
-		'chanel_exists' => 'Chanel reconnected to bot',
-		'bot_kicked' => 'Bot kicked from chanel',
+		'chanel_added' => 'Групу додано',
+		'chanel_exists' => 'Група переприєднана до боту',
+		'bot_kicked' => 'Бота видалено з групи',
+		'no_chanel' => "У вас немає груп для адмiнiстрування. \nБудьласка додайте одну!",
+		'select_chanel' => "Виберiть групу яку ви хочите \nадмiнiструвати зi списку нижче.",
 	),
 );
 

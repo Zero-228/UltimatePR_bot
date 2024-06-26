@@ -149,8 +149,8 @@ function changeLanguage($userId, $newLang) {
 function constructMenuButtons($lang) {
     $keyboard = ReplyKeyboardMarkup::make(resize_keyboard: true,)
     ->addRow(KeyboardButton::make(msg('menu_config', $lang)))
-    ->addRow(KeyboardButton::make(msg('menu_checkSub', $lang)), KeyboardButton::make(msg('menu_promote', $lang)),)
-    ->addRow(KeyboardButton::make(msg('menu_unlock', $lang)), KeyboardButton::make(msg('menu_info', $lang)),);
+    ->addRow(KeyboardButton::make(msg('menu_profile', $lang)), KeyboardButton::make(msg('menu_promote', $lang)),)
+    ->addRow(KeyboardButton::make(msg('menu_unlock', $lang)), KeyboardButton::make(msg('menu_support', $lang)),);
 
     return $keyboard;
 }
@@ -239,11 +239,11 @@ function checkUsersChanel($userId) {
 }
 
 
-function getChanelTitle($chanelId) {
+function getChanelInfo($chanelId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    $query_title = mysqli_query($dbCon, "SELECT title FROM chanel WHERE chanelId='$chanelId'");
-    $fetch_title = mysqli_fetch_array($query_title);
-    return $fetch_title['0'];
+    $query_info = mysqli_query($dbCon, "SELECT * FROM chanel WHERE chanelId='$chanelId'");
+    $fetch_info = mysqli_fetch_assoc($query_info);
+    return $fetch_info;
     mysqli_close($dbCon);
 }
 

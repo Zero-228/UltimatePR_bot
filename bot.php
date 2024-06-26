@@ -153,22 +153,20 @@ $bot->onMessage(function (Nutgram $bot) {
     $text = $bot->message()->text;
     $lang = lang($bot->userId());
     createLog(TIME_NOW, $role, $bot->userId(), 'message', $text);
+
     if (str_contains($text, 'testMenu')) {
         $colorMenu = new ChooseColorMenu($bot);
         $colorMenu->start($bot);
     } elseif(str_contains($text, msg('menu_config', $lang))) {
-        if (isset($chanelConfigMenu)) {
-            $chanelConfigMenu->none($bot);
-        }
         $chanelConfigMenu = new ChanelSettings($bot);
         $chanelConfigMenu->start($bot);
-    } elseif(str_contains($text, msg('menu_checkSub', $lang))) {
+    } elseif(str_contains($text, msg('menu_profile', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
     } elseif(str_contains($text, msg('menu_promote', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
     } elseif(str_contains($text, msg('menu_unlock', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
-    } elseif(str_contains($text, msg('menu_info', $lang))) {
+    } elseif(str_contains($text, msg('menu_support', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
     } else {
         $msg = "You send: ".$bot->message()->text;

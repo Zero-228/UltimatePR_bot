@@ -41,10 +41,10 @@ class ChanelSettings extends InlineMenu
         $deep_link = $deeplink->startGroup(BOT_USERNAME, '', $adminConf);
         if ($groups == 'chanel_not_found') {
             //$this->next('addChanel');
-            $this->menuText("You don't have groups to administrate. Pls add one")->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
+            $this->clearButtons()->menuText(msg('no_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link))
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
         } else {
-            $this->menuText(msg('select_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link));
+            $this->clearButtons()->menuText(msg('select_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link));
             foreach ($groups as $chanel) {
                 $name = $chanel['name'];
                 $role = $chanel['role'];
@@ -53,7 +53,7 @@ class ChanelSettings extends InlineMenu
                 $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
             }
             $this
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
         }
     }
 
@@ -62,17 +62,49 @@ class ChanelSettings extends InlineMenu
         $lang = lang($bot->userId());
         //Обрабатываем даныне из колбэка 
         list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
-        $chanelTitle = getChanelTitle($chanelId);
-        $text = $chanelTitle."\n\n"."chanel settings";
+        $chanelInfo = getChanelInfo($chanelId);
+        $text = $chanelInfo['title']."\n\n"."chanel settings";
         $this
             ->clearButtons()->menuText($text)
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@none'))->orNext('none')->showMenu();
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
     }
 
-    public function none(Nutgram $bot)
+    public function cancel(Nutgram $bot)
     {
         $bot->sendMessage(msg('canceled', lang($bot->userId())));
         $this->end();
+    }
+
+    protected function none(Nutgram $bot)
+    {
+        $text = $bot->message()->text;
+        $lang = lang($bot->userId());
+        if (str_contains($text, 'testMenu')) {
+            $this->end();
+            $colorMenu = new ChooseColorMenu($bot);
+            $colorMenu->start($bot);
+        } elseif(str_contains($text, msg('menu_config', $lang))) {
+            $this->end();
+            $chanelConfigMenu = new ChanelSettings($bot);
+            $chanelConfigMenu->start($bot);
+        } elseif(str_contains($text, msg('menu_profile', $lang))) {
+            $this->end();
+            $bot->sendMessage(msg('WIP', $lang));
+        } elseif(str_contains($text, msg('menu_promote', $lang))) {
+            $this->end();
+            $bot->sendMessage(msg('WIP', $lang));
+        } elseif(str_contains($text, msg('menu_unlock', $lang))) {
+            $this->end();
+            $bot->sendMessage(msg('WIP', $lang));
+        } elseif(str_contains($text, msg('menu_support', $lang))) {
+            $this->end();
+            $bot->sendMessage(msg('WIP', $lang));
+        } else {
+            $msg = "You send: ".$text;
+            $this
+            ->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
+        }
     }
 }
 ?>
