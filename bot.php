@@ -167,7 +167,8 @@ $bot->onMessage(function (Nutgram $bot) {
     } elseif(str_contains($text, msg('menu_unlock', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
     } elseif(str_contains($text, msg('menu_support', $lang))) {
-        $bot->sendMessage(msg('WIP', $lang));
+        $supportMenu = new SupportMenu($bot);
+        $supportMenu->start($bot);
     } else {
         $msg = "You send: ".$bot->message()->text;
         //$bot->sendMessage($msg);

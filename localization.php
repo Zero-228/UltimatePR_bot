@@ -37,6 +37,14 @@ $languages = array(
 		'bot_kicked' => 'Bot kicked from chanel',
 		'no_chanel' => "You don't have groups to administrate. \nPls add one!",
 		'select_chanel' => "Select the group which you want to \nadministrate from the list below.",
+		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
+		'frequent_msgs' => "Frequent messages 💬",
+		'contact_support' => "Contact with support 🛂",
+
+
+		/*
+		'' => "",
+		*/
 	),
 	'ru' => array(
 		'WIP' => "Данная функция находится в процессе \nразработки.Спасибо за ваше терпение. 🧑‍💻",
@@ -60,6 +68,9 @@ $languages = array(
 		'bot_kicked' => 'Бот исключён из группы',
 		'no_chanel' => "У вас нет групп для администрирования. \nПожалуйста добавьте одну!",
 		'select_chanel' => "Выберите группу которую вы хотите \nмодерировать из списка ниже.",
+		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
+		'frequent_msgs' => "Frequent messages 💬",
+		'contact_support' => "Contact with support 🛂",
 	),
 	'uk' => array(
 		'WIP' => "Ця функція знаходиться в процессi \nрозробки.Дякую за ваше терпіння. 🧑‍💻",
@@ -83,6 +94,9 @@ $languages = array(
 		'bot_kicked' => 'Бота видалено з групи',
 		'no_chanel' => "У вас немає груп для адмiнiстрування. \nБудьласка додайте одну!",
 		'select_chanel' => "Виберiть групу яку ви хочите \nадмiнiструвати зi списку нижче.",
+		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
+		'frequent_msgs' => "Frequent messages 💬",
+		'contact_support' => "Contact with support 🛂",
 	),
 );
 
