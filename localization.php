@@ -44,6 +44,7 @@ $languages = array(
 		'contact_support_msg' => "Write the message which will be \nsend to support team.",
 		'current_support_msg' => "\n\nYour current message:\n",
 		'send_support_message' => "Send message ✅",
+		'support_msg_sent' => "ℹ️ Your message was sent to support.\nThank you for your fedback!\n\n💬 Message:\n",
 
 		/*
 		'' => "",
@@ -78,6 +79,7 @@ $languages = array(
 		'contact_support_msg' => "Write the message which will be \nsend to support team.",
 		'current_support_msg' => "\n\nYour current message:\n",
 		'send_support_message' => "Send message ✅",
+		'support_msg_sent' => "ℹ️ Your message was sent to support.\nThank you for your fedback!\n\n💬 Message:\n",
 	),
 	'uk' => array(
 		'WIP' => "Ця функція знаходиться в процессi \nрозробки.Дякую за ваше терпіння. 🧑‍💻",
@@ -108,6 +110,7 @@ $languages = array(
 		'contact_support_msg' => "Write the message which will be \nsend to support team.",
 		'current_support_msg' => "\n\nYour current message:\n",
 		'send_support_message' => "Send message ✅",
+		'support_msg_sent' => "ℹ️ Your message was sent to support.\n     Thank you for your fedback!\n\n💬 Message:\n",
 	),
 );
 

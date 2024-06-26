@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июн 25 2024 г., 10:52
+-- Время создания: Июн 26 2024 г., 21:44
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -58,6 +58,27 @@ CREATE TABLE `log` (
 
 --
 -- ССЫЛКИ ТАБЛИЦЫ `log`:
+--
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `support`
+--
+
+CREATE TABLE `support` (
+  `id` int(11) NOT NULL,
+  `userId` bigint(20) NOT NULL,
+  `message` text NOT NULL,
+  `status` varchar(12) NOT NULL COMMENT '(active/on progress/closed)',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `support`:
+--   `userId`
+--       `user` -> `userId`
 --
 
 -- --------------------------------------------------------
@@ -127,6 +148,13 @@ ALTER TABLE `log`
   ADD KEY `entityId` (`entityId`);
 
 --
+-- Индексы таблицы `support`
+--
+ALTER TABLE `support`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `support_ibfk_1` (`userId`);
+
+--
 -- Индексы таблицы `user`
 --
 ALTER TABLE `user`
@@ -151,6 +179,12 @@ ALTER TABLE `log`
   MODIFY `logId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `support`
+--
+ALTER TABLE `support`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `users_in_chanels`
 --
 ALTER TABLE `users_in_chanels`
@@ -159,6 +193,12 @@ ALTER TABLE `users_in_chanels`
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
+
+--
+-- Ограничения внешнего ключа таблицы `support`
+--
+ALTER TABLE `support`
+  ADD CONSTRAINT `support_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`);
 
 --
 -- Ограничения внешнего ключа таблицы `users_in_chanels`

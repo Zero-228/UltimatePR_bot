@@ -247,6 +247,13 @@ function getChanelInfo($chanelId) {
     mysqli_close($dbCon);
 }
 
+function createSupportMsg($userId, $msg){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeNow = TIME_NOW;
+    mysqli_query($dbCon, "INSERT INTO support (userId, message, status, updated_at, created_at) VALUES ('$userId', '$msg', 'active', '$timeNow','$timeNow')");
+    mysqli_close($dbCon);
+}
+
 
 function writeLogFile($string, $clear = false){
     $timeNow = TIME_NOW;

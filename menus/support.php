@@ -37,18 +37,8 @@ class SupportMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         $this->clearButtons()->menuText(msg('welcome_support_msg', $lang))
-            ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), callback_data: '@frequentMsgs'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), url: "https://google.com/"))
             ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@contactSupport'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->orNext('none')
-            ->showMenu();
-    }
-
-    protected function frequentMsgs(Nutgram $bot)
-    {
-        $lang = lang($bot->userId());
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
@@ -63,10 +53,15 @@ class SupportMenu extends InlineMenu
         $msg = msg('contact_support_msg', $lang);
         if ($text != "") {
             $msg .= msg('current_support_msg', $lang) . $text;
+            try {
+                $bot->deleteMessage($bot->userId(), $bot->messageId());
+            } catch (Exception $e) {
+                error_log($e);
+            }
         }
         $this->clearButtons()->menuText($msg);
         if ($text != "") {
-            $this->addButtonRow(InlineKeyboardButton::make(msg('send_support_message', $lang), callback_data: '@sendMessage'));
+            $this->addButtonRow(InlineKeyboardButton::make(msg('send_support_message', $lang), callback_data: $text.'@sendMessage'));
         }
         $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
@@ -77,11 +72,11 @@ class SupportMenu extends InlineMenu
     protected function sendMessage(Nutgram $bot)
     {
         $lang = lang($bot->userId());
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->orNext('none')
-            ->showMenu();
+        $text = $bot->callbackQuery()->data;
+        createSupportMsg($bot->userId(), $text);
+        $msg = msg('support_msg_sent', $lang).$text;
+        $bot->sendMessage($msg);
+        $this->end();
     }
 
     public function cancel(Nutgram $bot)
