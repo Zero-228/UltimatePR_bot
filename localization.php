@@ -40,7 +40,10 @@ $languages = array(
 		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
 		'frequent_msgs' => "Frequent messages 💬",
 		'contact_support' => "Contact with support 🛂",
-
+		'back' => "↩️ Back",
+		'contact_support_msg' => "Write the message which will be \nsend to support team.",
+		'current_support_msg' => "\n\nYour current message:\n",
+		'send_support_message' => "Send message ✅",
 
 		/*
 		'' => "",
@@ -71,6 +74,10 @@ $languages = array(
 		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
 		'frequent_msgs' => "Frequent messages 💬",
 		'contact_support' => "Contact with support 🛂",
+		'back' => "↩️ Back",
+		'contact_support_msg' => "Write the message which will be \nsend to support team.",
+		'current_support_msg' => "\n\nYour current message:\n",
+		'send_support_message' => "Send message ✅",
 	),
 	'uk' => array(
 		'WIP' => "Ця функція знаходиться в процессi \nрозробки.Дякую за ваше терпіння. 🧑‍💻",
@@ -97,6 +104,10 @@ $languages = array(
 		'welcome_support_msg' => "Welcome to support page! \n\nPlease check frequent questions \nbefor asking your's.",
 		'frequent_msgs' => "Frequent messages 💬",
 		'contact_support' => "Contact with support 🛂",
+		'back' => "↩️ Back",
+		'contact_support_msg' => "Write the message which will be \nsend to support team.",
+		'current_support_msg' => "\n\nYour current message:\n",
+		'send_support_message' => "Send message ✅",
 	),
 );
 

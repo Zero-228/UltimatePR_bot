@@ -36,27 +36,50 @@ class SupportMenu extends InlineMenu
     public function start(Nutgram $bot)
     {
         $lang = lang($bot->userId());
-        $this->menuText(msg('welcome_support_msg', $lang))
+        $this->clearButtons()->menuText(msg('welcome_support_msg', $lang))
             ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), callback_data: '@frequentMsgs'))
             ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@contactSupport'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
-        error_log('started');
     }
 
-    public function frequentMsgs(Nutgram $bot)
+    protected function frequentMsgs(Nutgram $bot)
     {
+        $lang = lang($bot->userId());
         $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', lang($bot->userId())), callback_data: '@cancel'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
     }
 
-    public function contactSupport(Nutgram $bot)
+    protected function contactSupport(Nutgram $bot)
     {
+        $lang = lang($bot->userId());
+        $update = $bot->update();
+        $text = isset($update->message) ? $update->message->text : "";
+
+        $msg = msg('contact_support_msg', $lang);
+        if ($text != "") {
+            $msg .= msg('current_support_msg', $lang) . $text;
+        }
+        $this->clearButtons()->menuText($msg);
+        if ($text != "") {
+            $this->addButtonRow(InlineKeyboardButton::make(msg('send_support_message', $lang), callback_data: '@sendMessage'));
+        }
+        $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('contactSupport')
+            ->showMenu();
+    }
+
+    protected function sendMessage(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
         $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', lang($bot->userId())), callback_data: '@cancel'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
     }
