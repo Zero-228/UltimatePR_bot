@@ -52,13 +52,13 @@ function checkUser($userId){
     mysqli_close($dbCon);
 }
 
-function createUser($user){
+function createUser($user, $startedBot = false){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $username = "";
     $timeNow = TIME_NOW;
     if ($user['username']!='') { $username = $user['username']; } 
     else { $username = $user['first_name']." ".$user['last_name']; }
-    mysqli_query($dbCon, "INSERT INTO user (userId, firstName, lastName, username, language, lastVisit, registeredAt) VALUES ('" . $user['id'] . "', '" . $user['first_name'] . "', '" . $user['last_name'] . "', '" . $username . "', '" . $user['language_code'] . "', '" . $timeNow . "', '" . $timeNow . "')");
+    mysqli_query($dbCon, "INSERT INTO user (userId, firstName, lastName, username, startedBot, language, lastVisit, registeredAt) VALUES ('" . $user['id'] . "', '" . $user['first_name'] . "', '" . $user['last_name'] . "', '" . $username . "', '" . $startedBot . "', '" . $user['language_code'] . "', '" . $timeNow . "', '" . $timeNow . "')");
     mysqli_close($dbCon);
 }
 
@@ -265,6 +265,12 @@ function checkUserInChanelRole($userId, $chanelId) {
     } else {
         return "not a user";
     }
+    mysqli_close($dbCon);
+}
+
+function updateUserRoleInChanel($userId, $chanelId, $role) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "UPDATE users_in_chanels SET role='$role' WHERE userId='$userId' AND chanelId='$chanelId'");
     mysqli_close($dbCon);
 }
 

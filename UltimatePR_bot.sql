@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июн 26 2024 г., 21:44
+-- Время создания: Июн 27 2024 г., 14:58
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -92,6 +92,7 @@ CREATE TABLE `user` (
   `firstName` varchar(30) NOT NULL,
   `lastName` varchar(30) NOT NULL,
   `username` varchar(60) NOT NULL,
+  `startedBot` tinyint(1) NOT NULL DEFAULT 0,
   `language` varchar(2) NOT NULL,
   `phone` varchar(15) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
@@ -204,8 +205,8 @@ ALTER TABLE `support`
 -- Ограничения внешнего ключа таблицы `users_in_chanels`
 --
 ALTER TABLE `users_in_chanels`
-  ADD CONSTRAINT `bound_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `bound_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `bound_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `bound_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

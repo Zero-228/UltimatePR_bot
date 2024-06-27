@@ -92,7 +92,8 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+        $msg = msg('subscription', $lang);
+        $this->clearButtons()->menuText($msg)
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();

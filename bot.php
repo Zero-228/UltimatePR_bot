@@ -45,7 +45,7 @@ $bot->onCommand('start', function(Nutgram $bot) {
     $checkUser = checkUser($bot->userId());
     if ($checkUser == 'no_such_user') {
         $user_info = get_object_vars($bot->user());
-        $creating = createUser($user_info);
+        $creating = createUser($user_info, true);
         if ($creating) {
             $lang = lang($bot->userId());
             $role = checkRole($bot->userId());
@@ -59,7 +59,7 @@ $bot->onCommand('start', function(Nutgram $bot) {
         $lang = lang($bot->userId());
         $role = checkRole($bot->userId());
         createLog(TIME_NOW, $role, $bot->userId(), 'command', '/start');
-        $bot->sendMessage(msg('welcome_back', $lang), reply_markup: constructMenuButtons($lang));
+        $bot->sendMessage(msg('welcome', $lang), reply_markup: constructMenuButtons($lang));
     } else {
         $bot->sendMessage('WTF are you?');
     }
@@ -94,11 +94,17 @@ $bot->onMyChatMember(function(Nutgram $bot){
                         }
                         $role = json_encode($administrator->status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                         $role = trim($role, '"');
-                        addUserInChanel([
-                            'userId' => $administrator->user->id,
-                            'chanelId' => $bot->chatId(),
-                            'role' => $role,
-                        ]);
+
+                        $checkUserInChanel = checkUserInChanel($bot->userId(), $bot->chatId());
+                        if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
+                            addUserInChanel([
+                                'userId' => $administrator->user->id,
+                                'chanelId' => $bot->chatId(),
+                                'role' => $role,
+                            ]);
+                        } else {
+                            updateUserRoleInChanel($bot->userId(), $bot->chatId(), $role);
+                        }                                                
                     }
                 }
             }
@@ -146,6 +152,8 @@ $bot->onCallbackQueryData('callback_cancel', function (Nutgram $bot) {
 $bot->onMessage(function (Nutgram $bot) {
     $role = checkRole($bot->userId());
     $text = $bot->message()->text;
+    $isBot = $bot->message()->is_bot;
+    $chatId = $bot->chat()->id;
     $lang = lang($bot->userId());
     createLog(TIME_NOW, $role, $bot->userId(), 'message', $text);
 
@@ -168,6 +176,24 @@ $bot->onMessage(function (Nutgram $bot) {
     } else {
         //$msg = "You send: ".$bot->message()->text;
         //$bot->sendMessage($msg);
+        if (!$isBot) {
+            $checkUser = checkUser($bot->userId());
+            if ($checkUser == 'no_such_user') {
+                $user_info = get_object_vars($bot->user());
+                $creating = createUser($user_info);
+                if ($creating) {
+                    createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
+                }
+            }
+            $checkUserInChanel = checkUserInChanel($bot->userId(), $chatId);
+            if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
+                addUserInChanel([
+                    'userId' => $bot->userId(),
+                    'chanelId' => $chatId,
+                    'role' => 'user',
+                ]);
+            }
+        }
     }
 });
 
