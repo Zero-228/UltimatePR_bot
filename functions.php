@@ -274,6 +274,20 @@ function updateUserRoleInChanel($userId, $chanelId, $role) {
     mysqli_close($dbCon);
 }
 
+function checkUserInBot($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT startedBot FROM user WHERE userId='$userId'");
+    $checkStatus = mysqli_fetch_array($query);
+    mysqli_close($dbCon);
+    return $checkStatus['0'];
+}
+
+function userStartedBot($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "UPDATE user SET startedBot='1' WHERE userId='$userId'");
+    mysqli_close($dbCon);
+}
+
 
 function writeLogFile($string, $clear = false){
     $timeNow = TIME_NOW;

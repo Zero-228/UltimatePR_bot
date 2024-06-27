@@ -53,8 +53,11 @@ $bot->onCommand('start', function(Nutgram $bot) {
             createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
         }
     } elseif ($checkUser == 'one_user') {
-        if (checkUserStatus($bot->userId() == 'deleted')) {
+        if (checkUserStatus($bot->userId()) == 'deleted') {
             userActivatedBot($bot->userId());
+        }
+        if (checkUserInBot($bot->userId()) == false) {
+            userStartedBot($bot->userId());
         }
         $lang = lang($bot->userId());
         $role = checkRole($bot->userId());
