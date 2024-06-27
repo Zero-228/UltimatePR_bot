@@ -130,7 +130,7 @@ $bot->onCallbackQueryData('callback_change_lang_to {param}', function (Nutgram $
     } catch (Exception $e) {
         error_log($e);
     }
-    $bot->sendMessage(msg('language_changed', lang($bot->userId())));
+    $bot->sendMessage(msg('language_changed', lang($bot->userId())), reply_markup: constructMenuButtons(lang($bot->userId())));
     $bot->answerCallbackQuery();
 });
 

@@ -66,11 +66,11 @@ class ChanelSettings extends InlineMenu
         $text = $chanelInfo['title']."\n\n"."chanel settings";
         $this
             ->clearButtons()->menuText($text)
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_statistic', $lang), callback_data: $chanelId.'@chanelStatistics'))
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_subscription', $lang), callback_data: $chanelId.'@chanelSubscription'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_capcha', $lang), callback_data: '@chanelCapcha'),InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: '@chanelAntispam'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_statistic', $lang), callback_data: $chanelId.'@chanelStatistics'),InlineKeyboardButton::make(msg('btn_access', $lang), callback_data: $chanelId.'@chanelAccess'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_capcha', $lang), callback_data: $chanelId.'@chanelCapcha'),InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: $chanelId.'@chanelAntispam'))
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_messages', $lang), callback_data: $chanelId.'@chanelMessages'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_unlock', $lang), callback_data: '@chanelUnlock'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_unlock', $lang), callback_data: $chanelId.'@chanelUnlock'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
     }
 
@@ -124,6 +124,18 @@ class ChanelSettings extends InlineMenu
     }
 
     protected function chanelAntispam(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@handleChanel';
+        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function chanelAccess(Nutgram $bot)
     {
         $lang = lang($bot->userId());
         $chanelId = $bot->callbackQuery()->data;
