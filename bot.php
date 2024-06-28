@@ -72,57 +72,59 @@ $bot->onMyChatMember(function(Nutgram $bot){
     $lang = lang($bot->userId());
     $role = checkRole($bot->userId());
     $myChatMember = $bot->update()->my_chat_member;
+    $isBot = $bot->message()->is_bot;
     $newStatus = $myChatMember->new_chat_member->status;
     $newStatus = json_encode($newStatus);
     error_log($newStatus);
 
-    if ($newStatus == '"kicked"' || $newStatus == '"left"' ) {
-        updateChanelStatus($bot->chatId(), 'unactive');
-    } elseif($newStatus == '"administrator"' || $newStatus == '"user"') {
-        $chanelStatus = checkChanel($bot->chatId());
-        sleep(1);
-        if ($chanelStatus == 'no_such_chanel') {
-            $chanel_info = get_object_vars($bot->chat());
-            createChanel($chanel_info);
+    if (!$isBot) {
+        if ($newStatus == '"kicked"' || $newStatus == '"left"' ) {
+            updateChanelStatus($bot->chatId(), 'unactive');
+        } elseif($newStatus == '"administrator"' || $newStatus == '"user"') {
+            $chanelStatus = checkChanel($bot->chatId());
             sleep(1);
-            $admins = $bot->getChatAdministrators($bot->chatId());
-            writeLogFile($admins);
-            if ($admins) {
-                foreach ($admins as $administrator) {
-                    if (!$administrator->user->is_bot) {
-                        sleep(1);
-                        $userExistence = checkUser($administrator->user->id);
-                        if ($userExistence == 'no_such_user') {
-                            createUser($administrator->user);
-                        }
-                        $role = json_encode($administrator->status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-                        $role = trim($role, '"');
+            if ($chanelStatus == 'no_such_chanel') {
+                $chanel_info = get_object_vars($bot->chat());
+                createChanel($chanel_info);
+                sleep(1);
+                $admins = $bot->getChatAdministrators($bot->chatId());
+                writeLogFile($admins);
+                if ($admins) {
+                    foreach ($admins as $administrator) {
+                        if (!$administrator->user->is_bot) {
+                            $userExistence = checkUser($administrator->user->id);
+                            if ($userExistence == 'no_such_user') {
+                                createUser($administrator->user);
+                            }
+                            $role = json_encode($administrator->status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+                            $role = trim($role, '"');
 
-                        $checkUserInChanel = checkUserInChanel($bot->userId(), $bot->chatId());
-                        if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
-                            addUserInChanel([
-                                'userId' => $administrator->user->id,
-                                'chanelId' => $bot->chatId(),
-                                'role' => $role,
-                            ]);
-                        } else {
-                            updateUserRoleInChanel($bot->userId(), $bot->chatId(), $role);
-                        }                                                
+                            $checkUserInChanel = checkUserInChanel($bot->userId(), $bot->chatId());
+                            if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
+                                addUserInChanel([
+                                    'userId' => $administrator->user->id,
+                                    'chanelId' => $bot->chatId(),
+                                    'role' => $role,
+                                ]);
+                            } else {
+                                updateUserRoleInChanel($bot->userId(), $bot->chatId(), $role);
+                            }                                                
+                        }
                     }
                 }
-            }
-            $bot->sendMessage(msg('chanel_added', $lang), chat_id: $bot->userId());
-            createLog(TIME_NOW, $role, $bot->userId(), 'added chanel', $bot->chatId());
-        } elseif ($chanelStatus == 'one_chanel') {
-            if ($bot->userId() != BOT_ID) {
-                updateChanelStatus($bot->chatId(), 'active');
-                $bot->sendMessage(msg('chanel_exists', $lang), chat_id: $bot->userId());
+                $bot->sendMessage(msg('chanel_added', $lang), chat_id: $bot->userId());
+                createLog(TIME_NOW, $role, $bot->userId(), 'added chanel', $bot->chatId());
+            } elseif ($chanelStatus == 'one_chanel') {
+                if ($bot->userId() != BOT_ID) {
+                    updateChanelStatus($bot->chatId(), 'active');
+                    $bot->sendMessage(msg('chanel_exists', $lang), chat_id: $bot->userId());
+                }
+            } else {
+                $bot->sendMessage(text: 'Twin chanel. ID - '.$bot->chatId(), chat_id: ADMIN_ID);
             }
         } else {
-            $bot->sendMessage(text: 'Twin chanel. ID - '.$bot->chatId(), chat_id: ADMIN_ID);
+            $bot->sendMessage(text: 'So why?', chat_id: ADMIN_ID);
         }
-    } else {
-        $bot->sendMessage(text: 'So why?', chat_id: ADMIN_ID);
     }
 });
 
@@ -179,7 +181,9 @@ $bot->onMessage(function (Nutgram $bot) {
     } else {
         //$msg = "You send: ".$bot->message()->text;
         //$bot->sendMessage($msg);
-        if (!$isBot) {
+
+
+        if ($isBot != true || $isBot!="" || $isBot!=" ") {
             $checkUser = checkUser($bot->userId());
             if ($checkUser == 'no_such_user') {
                 $user_info = get_object_vars($bot->user());
@@ -188,14 +192,19 @@ $bot->onMessage(function (Nutgram $bot) {
                     createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
                 }
             }
-            $checkUserInChanel = checkUserInChanel($bot->userId(), $chatId);
-            if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
-                addUserInChanel([
-                    'userId' => $bot->userId(),
-                    'chanelId' => $chatId,
-                    'role' => 'user',
-                ]);
+            if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
+                if (checkChanel($bot->chatId())) {
+                    $checkUserInChanel = checkUserInChanel($bot->userId(), $chatId);
+                    if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
+                        addUserInChanel([
+                            'userId' => $bot->userId(),
+                            'chanelId' => $chatId,
+                            'role' => 'user',
+                        ]);
+                    }
+                }
             }
+            
         }
     }
 });

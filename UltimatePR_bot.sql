@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июн 27 2024 г., 14:58
+-- Время создания: Июн 28 2024 г., 00:06
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -39,6 +39,28 @@ CREATE TABLE `chanel` (
 
 --
 -- ССЫЛКИ ТАБЛИЦЫ `chanel`:
+--
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `chanel_settings`
+--
+
+CREATE TABLE `chanel_settings` (
+  `chanelId` bigint(25) NOT NULL,
+  `unlocked` varchar(6) NOT NULL DEFAULT 'no' COMMENT '(no/yes/payed)',
+  `access` varchar(7) NOT NULL DEFAULT 'admin' COMMENT '(creator/admin)',
+  `capcha` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
+  `antispam` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
+  `statistics` varchar(8) NOT NULL DEFAULT 'standart' COMMENT '(standart/payed)',
+  `timedMessages` int(11) NOT NULL DEFAULT 1 COMMENT '(quantity of avaible messages)'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `chanel_settings`:
+--   `chanelId`
+--       `chanel` -> `chanelId`
 --
 
 -- --------------------------------------------------------
@@ -142,6 +164,12 @@ ALTER TABLE `chanel`
   ADD PRIMARY KEY (`chanelId`);
 
 --
+-- Индексы таблицы `chanel_settings`
+--
+ALTER TABLE `chanel_settings`
+  ADD KEY `settings_ibfk_1` (`chanelId`);
+
+--
 -- Индексы таблицы `log`
 --
 ALTER TABLE `log`
@@ -194,6 +222,12 @@ ALTER TABLE `users_in_chanels`
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
+
+--
+-- Ограничения внешнего ключа таблицы `chanel_settings`
+--
+ALTER TABLE `chanel_settings`
+  ADD CONSTRAINT `settings_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `support`

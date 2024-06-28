@@ -170,6 +170,7 @@ function createChanel($chanel){
     $timeNow = TIME_NOW;
     $type = $chanel['type']->value;
     mysqli_query($dbCon, "INSERT INTO chanel (chanelId, title, username, type, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $chanel['title'] . "', '" . $chanel['username'] . "', '" . $type . "', '" . $timeNow . "', '" . $timeNow . "')");
+    mysqli_query($dbCon, "INSERT INTO chanel_settings (chanelId) VALUES ('" . $chanel['id'] . "')");
     mysqli_close($dbCon);
 }
 
