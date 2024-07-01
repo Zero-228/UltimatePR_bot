@@ -169,7 +169,8 @@ $bot->onMessage(function (Nutgram $bot) {
         $chanelConfigMenu = new ChanelSettings($bot);
         $chanelConfigMenu->start($bot);
     } elseif(str_contains($text, msg('menu_profile', $lang))) {
-        $bot->sendMessage(msg('WIP', $lang));
+        $profileMenu = new ProfileMenu($bot);
+        $profileMenu->start($bot);
     } elseif(str_contains($text, msg('menu_promote', $lang))) {
         $bot->sendMessage(msg('WIP', $lang));
     } elseif(str_contains($text, msg('change_language', $lang))) {

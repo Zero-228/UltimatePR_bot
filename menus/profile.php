@@ -1,6 +1,4 @@
 <?php 
-// ChooseColorMenu.php
-
 /**
  * UltimatePR Chatbot
  * 
@@ -23,7 +21,7 @@ use SergiX44\Nutgram\Conversations\InlineMenu;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 
-class SupportMenu extends InlineMenu
+class ProfileMenu extends InlineMenu
 {
     protected Nutgram $bot;
 
@@ -36,47 +34,24 @@ class SupportMenu extends InlineMenu
     public function start(Nutgram $bot)
     {
         $lang = lang($bot->userId());
-        $this->clearButtons()->menuText(msg('welcome_support_msg', $lang))
-            ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), url: "https://google.com/"))
-            ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@contactSupport'))
+        $username = getUsername($bot->userId());
+        $msg = "👤       ".$username."\n========================";
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make('Red', callback_data: 'red@handleColor'))
+            ->addButtonRow(InlineKeyboardButton::make('Green', callback_data: 'green@handleColor'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
     }
 
-    protected function contactSupport(Nutgram $bot)
+    public function handleColor(Nutgram $bot)
     {
+        $color = $bot->callbackQuery()->data;
         $lang = lang($bot->userId());
-        $update = $bot->update();
-        $text = isset($update->message) ? $update->message->text : "";
-
-        $msg = msg('contact_support_msg', $lang);
-        if ($text != "") {
-            $msg .= msg('current_support_msg', $lang) . $text;
-            try {
-                $bot->deleteMessage($bot->userId(), $bot->messageId());
-            } catch (Exception $e) {
-                error_log($e);
-            }
-        }
-        $this->clearButtons()->menuText($msg);
-        if ($text != "") {
-            $this->addButtonRow(InlineKeyboardButton::make(msg('send_support_message', $lang), callback_data: $text.'@sendMessage'));
-        }
-        $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->orNext('contactSupport')
-            ->showMenu();
-    }
-
-    protected function sendMessage(Nutgram $bot)
-    {
-        $lang = lang($bot->userId());
-        $text = $bot->callbackQuery()->data;
-        createSupportMsg($bot->userId(), $text);
-        $msg = msg('support_msg_sent', $lang).$text;
-        $bot->sendMessage($msg);
-        $this->end();
+        $username = getUsername($bot->userId());
+        $msg = "👤       ".$username."\n========================";
+        $this->clearButtons()->menuText($msg."\n\nChoosen: $color!")
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
     }
 
     public function cancel(Nutgram $bot)

@@ -179,7 +179,8 @@ class ChanelSettings extends InlineMenu
             $chanelConfigMenu->start($bot);
         } elseif(str_contains($text, msg('menu_profile', $lang))) {
             $this->end();
-            $bot->sendMessage(msg('WIP', $lang));
+            $profileMenu = new ProfileMenu($bot);
+            $profileMenu->start($bot);
         } elseif(str_contains($text, msg('menu_promote', $lang))) {
             $this->end();
             $bot->sendMessage(msg('WIP', $lang));
