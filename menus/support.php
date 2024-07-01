@@ -1,6 +1,4 @@
 <?php 
-// ChooseColorMenu.php
-
 /**
  * UltimatePR Chatbot
  * 

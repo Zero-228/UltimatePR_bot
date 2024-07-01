@@ -99,16 +99,26 @@ class ChanelSettings extends InlineMenu
             ->showMenu();
     }
 
-    protected function chanelMessages(Nutgram $bot)
+    public function chanelMessages(Nutgram $bot, $chanelId = "")
     {
         $lang = lang($bot->userId());
-        $chanelId = $bot->callbackQuery()->data;
+        if ($chanelId == "") {
+            $chanelId = $bot->callbackQuery()->data;
+        }
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+
+        $timedMessages = checkTimedMessages($chanelId);
+        $msg = msg('timed_messages', $lang)."(".$timedMessages['exists']."/".$timedMessages['all'].")";
+        $this->clearButtons()->menuText($msg);
+        if ($timedMessages['exists']<$timedMessages['all']) {
+            $this->addButtonRow(InlineKeyboardButton::make(msg('make_timed_msg', $lang), callback_data: $chanelId.'@newTimedMessage'));
+        }
+        $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
+
+
     }
 
     protected function chanelCapcha(Nutgram $bot)
@@ -157,6 +167,14 @@ class ChanelSettings extends InlineMenu
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
+    }
+
+    protected function newTimedMessage(Nutgram $bot)
+    {
+        $chanelId = $bot->callbackQuery()->data;
+        $this->end();
+        $createTimedMessage = new createTimedMessage($bot);
+        $createTimedMessage->start($bot, $chanelId);
     }
 
     public function cancel(Nutgram $bot)

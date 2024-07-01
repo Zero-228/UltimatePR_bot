@@ -51,6 +51,8 @@ $languages = array(
 		'btn_unlock' => 'Unlock 🔓',
 		'btn_access' => "Access 👁",
 		'subscription' => "Forced Subscription 💹\n\nThe bot will check if the user of your chat is subscribed to another channel (chat) and delete their messages until they subscribe.\n\n❗️To activate this function, the bot must be an administrator in both groups (the bot can be added through the main menu or manually).\n\n\nTo start the check, type in the group chat:\n   - /setup @group 1d*\n       * - optional parameter\n\nTo stop the check, use the command:\n   - /unset @group",
+		'timed_messages' => "Here you can add some auto messages\n\n",
+		'make_timed_msg' => "Create new message ➕",
 
 		/*
 		'' => "",
@@ -92,6 +94,8 @@ $languages = array(
 		'btn_unlock' => 'Разблокировать 🔓',
 		'btn_access' => "Доступ 👁",
 		'subscription' => "Обязательная подписка 💹\n\nБот проверит, подписан ли пользователь вашего чата на какой-либо другой канал (чат) и будет удалять его сообщения до тех пор, пока он не подпишется.\n\n❗️Чтобы активировать эту функцию, бот должен быть администратором в обеих группах (бота можно добавить через главное меню или вручную).\n\n\nДля запуска проверки наберите в чате группы:\n   - /setup @group 1d*\n       * - необязательный параметр\n\nДля остановки проверки используйте команду:\n   - /unset @group",
+		'timed_messages' => "Here you can add some auto messages\n\n",
+		'make_timed_msg' => "Create new message ➕",
 
 	),
 	'uk' => array(
@@ -130,6 +134,8 @@ $languages = array(
 		'btn_unlock' => 'Разблокувати 🔓',	
 		'btn_access' => "Доступ 👁",
 		'subscription' => "Обов'язкова підписка 💹\n\nБот перевірить, чи підписаний користувач вашого чату на якийсь інший канал (чат), і буде видаляти його повідомлення доти, поки він не підпишеться.\n\n❗️Щоб активувати цю функцію, бот повинен бути адміністратором в обох групах (бота можна додати через головне меню або вручну).\n\n\nДля запуску перевірки наберіть у чаті групи:\n   - /setup @group 1d*\n       * - необов'язковий параметр\n\nДля зупинки перевірки використовуйте команду:\n   - /unset @group",
+		'timed_messages' => "Here you can add some auto messages\n\n",
+		'make_timed_msg' => "Create new message ➕",
 
 	),
 );

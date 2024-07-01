@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июн 28 2024 г., 00:06
+-- Время создания: Июл 01 2024 г., 14:03
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -54,7 +54,7 @@ CREATE TABLE `chanel_settings` (
   `capcha` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `antispam` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `statistics` varchar(8) NOT NULL DEFAULT 'standart' COMMENT '(standart/payed)',
-  `timedMessages` int(11) NOT NULL DEFAULT 1 COMMENT '(quantity of avaible messages)'
+  `timedMessages` int(11) NOT NULL DEFAULT 3 COMMENT '(quantity of avaible messages)'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -106,6 +106,28 @@ CREATE TABLE `support` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `timed_message`
+--
+
+CREATE TABLE `timed_message` (
+  `id` int(11) NOT NULL,
+  `chanelId` bigint(25) NOT NULL,
+  `text` text NOT NULL,
+  `status` varchar(12) NOT NULL COMMENT '(on/off/deleted)',
+  `timer` varchar(12) NOT NULL COMMENT '(3min/5min/10min/...)',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- ССЫЛКИ ТАБЛИЦЫ `timed_message`:
+--   `chanelId`
+--       `chanel` -> `chanelId`
+--
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `user`
 --
 
@@ -147,10 +169,10 @@ CREATE TABLE `users_in_chanels` (
 
 --
 -- ССЫЛКИ ТАБЛИЦЫ `users_in_chanels`:
---   `chanelId`
---       `chanel` -> `chanelId`
 --   `userId`
 --       `user` -> `userId`
+--   `chanelId`
+--       `chanel` -> `chanelId`
 --
 
 --
@@ -167,7 +189,7 @@ ALTER TABLE `chanel`
 -- Индексы таблицы `chanel_settings`
 --
 ALTER TABLE `chanel_settings`
-  ADD KEY `settings_ibfk_1` (`chanelId`);
+  ADD PRIMARY KEY (`chanelId`);
 
 --
 -- Индексы таблицы `log`
@@ -182,6 +204,13 @@ ALTER TABLE `log`
 ALTER TABLE `support`
   ADD PRIMARY KEY (`id`),
   ADD KEY `support_ibfk_1` (`userId`);
+
+--
+-- Индексы таблицы `timed_message`
+--
+ALTER TABLE `timed_message`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `timedMsg_ibfk_1` (`chanelId`);
 
 --
 -- Индексы таблицы `user`
@@ -214,6 +243,12 @@ ALTER TABLE `support`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `timed_message`
+--
+ALTER TABLE `timed_message`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `users_in_chanels`
 --
 ALTER TABLE `users_in_chanels`
@@ -236,11 +271,17 @@ ALTER TABLE `support`
   ADD CONSTRAINT `support_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`);
 
 --
+-- Ограничения внешнего ключа таблицы `timed_message`
+--
+ALTER TABLE `timed_message`
+  ADD CONSTRAINT `timedMsg_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON UPDATE CASCADE;
+
+--
 -- Ограничения внешнего ключа таблицы `users_in_chanels`
 --
 ALTER TABLE `users_in_chanels`
-  ADD CONSTRAINT `bound_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `bound_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `bound_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `users_in_chanels_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

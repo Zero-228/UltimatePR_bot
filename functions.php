@@ -289,6 +289,17 @@ function userStartedBot($userId) {
     mysqli_close($dbCon);
 }
 
+function checkTimedMessages($chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT timedMessages FROM chanel_settings WHERE chanelId='$chanelId'");
+    $query2 = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE chanelId='chanelId'");
+    $allMsgsFetch = mysqli_fetch_assoc($query);
+    $allMsgs = $allMsgsFetch['timedMessages'];
+    $createdMsgs = mysqli_num_rows($query2);
+    mysqli_close($dbCon);
+    return ['all'=>$allMsgs, 'exists'=>$createdMsgs];
+}
+
 
 function writeLogFile($string, $clear = false){
     $timeNow = TIME_NOW;
