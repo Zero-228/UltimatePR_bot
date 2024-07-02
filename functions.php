@@ -292,12 +292,57 @@ function userStartedBot($userId) {
 function checkTimedMessages($chanelId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $query = mysqli_query($dbCon, "SELECT timedMessages FROM chanel_settings WHERE chanelId='$chanelId'");
-    $query2 = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE chanelId='chanelId'");
+    $query2 = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE chanelId='$chanelId'");
     $allMsgsFetch = mysqli_fetch_assoc($query);
     $allMsgs = $allMsgsFetch['timedMessages'];
-    $createdMsgs = mysqli_num_rows($query2);
+    $createdMsgs = [];
+    
+    while ($msgs = mysqli_fetch_assoc($query2)) {
+        $id = $msgs['id'];
+        $msg = $msgs['msg'];
+
+        $msg = substr($msg, 0, 25);
+        if(strlen($msg) > 25){ $msg .= "..."; }
+        
+        $createdMsgs[] = [
+            'id' => $id,
+            'text' => $msg,
+        ];
+    }
     mysqli_close($dbCon);
     return ['all'=>$allMsgs, 'exists'=>$createdMsgs];
+}
+
+function createTimedMessage($chanelId, $text, $status, $timer) {
+    $timeNow = TIME_NOW;
+    if ($status == "unsaved") {
+        $status = "on";
+    }
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "INSERT INTO timed_message (chanelId, msg, status, timer, updated_at, created_at) VALUES ('$chanelId', '$text', '$status', '$timer', '$timeNow', '$timeNow')");
+    mysqli_close($dbCon);
+}
+
+function getTimedMessage($msgId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE id='$msgId'");
+    $message = mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+    return $message;
+}
+
+// function updateTimedMessage($id, $param, $value) {
+//     $timeNow = TIME_NOW;
+//     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+//     mysqli_query($dbCon, "UPDATE timed_message SET $param='$value', updated_at='$timeNow' WHERE id='$id'");
+//     mysqli_close($dbCon);
+// }
+
+function updateTimedMessage($msgId, $text, $status, $timer) {
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "UPDATE timed_message SET msg='$text', status='$status', timer='$timer', updated_at='$timeNow' WHERE id='$msgId'");
+    mysqli_close($dbCon);
 }
 
 

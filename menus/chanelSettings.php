@@ -105,14 +105,24 @@ class ChanelSettings extends InlineMenu
         if ($chanelId == "") {
             $chanelId = $bot->callbackQuery()->data;
         }
+        if ($chanelId == "") {
+            $chanelId = $bot->getUserData('chanelId', $bot->userId());
+        }
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-
         $timedMessages = checkTimedMessages($chanelId);
-        $msg = msg('timed_messages', $lang)."(".$timedMessages['exists']."/".$timedMessages['all'].")";
+        $existsMsgs = count($timedMessages['exists']);
+        $msg = msg('timed_messages', $lang)."(".$existsMsgs."/".$timedMessages['all'].")";
         $this->clearButtons()->menuText($msg);
-        if ($timedMessages['exists']<$timedMessages['all']) {
+        if ($existsMsgs<$timedMessages['all']) {
             $this->addButtonRow(InlineKeyboardButton::make(msg('make_timed_msg', $lang), callback_data: $chanelId.'@newTimedMessage'));
+        }
+        if ($existsMsgs>0) {
+            foreach ($timedMessages['exists'] as $msg) {
+                $id = $msg['id'];
+                $title = $msg['text'];
+                $this->addButtonRow(InlineKeyboardButton::make("📃 ".$title, callback_data: $id.'@showTimedMessage'));
+            }
         }
         $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
@@ -175,6 +185,14 @@ class ChanelSettings extends InlineMenu
         $this->end();
         $createTimedMessage = new createTimedMessage($bot);
         $createTimedMessage->start($bot, $chanelId);
+    }
+
+    protected function showTimedMessage(Nutgram $bot)
+    {
+        $id = $bot->callbackQuery()->data;
+        $this->end();
+        $createTimedMessage = new createTimedMessage($bot);
+        $createTimedMessage->showMessage($bot, $id);
     }
 
     public function cancel(Nutgram $bot)

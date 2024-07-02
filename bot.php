@@ -34,6 +34,7 @@ use Symfony\Component\Cache\Psr16Cache;
 
 $filesystemAdapter = new FilesystemAdapter();
 $cache = new Psr16Cache($filesystemAdapter);
+global $filesystemAdapter;
 $bot = new Nutgram(BOT_TOKEN, new Configuration(cache: $cache));
 $bot->setRunningMode(Webhook::class);
 $bot->setWebhook(WEBHOOK_URL);
