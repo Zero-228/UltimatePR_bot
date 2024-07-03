@@ -292,7 +292,7 @@ function userStartedBot($userId) {
 function checkTimedMessages($chanelId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $query = mysqli_query($dbCon, "SELECT timedMessages FROM chanel_settings WHERE chanelId='$chanelId'");
-    $query2 = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE chanelId='$chanelId'");
+    $query2 = mysqli_query($dbCon, "SELECT * FROM timed_message WHERE chanelId='$chanelId' AND status!='deleted'");
     $allMsgsFetch = mysqli_fetch_assoc($query);
     $allMsgs = $allMsgsFetch['timedMessages'];
     $createdMsgs = [];
@@ -331,12 +331,12 @@ function getTimedMessage($msgId) {
     return $message;
 }
 
-// function updateTimedMessage($id, $param, $value) {
-//     $timeNow = TIME_NOW;
-//     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-//     mysqli_query($dbCon, "UPDATE timed_message SET $param='$value', updated_at='$timeNow' WHERE id='$id'");
-//     mysqli_close($dbCon);
-// }
+function superUpdater($db, $updateParam, $updateValue, $whereParam, $whereValue) {
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "UPDATE $db SET $updateParam='$updateValue', updated_at='$timeNow' WHERE $whereParam='$whereValue'");
+    mysqli_close($dbCon);
+}
 
 function updateTimedMessage($msgId, $text, $status, $timer) {
     $timeNow = TIME_NOW;

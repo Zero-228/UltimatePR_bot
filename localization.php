@@ -71,6 +71,8 @@ $languages = array(
 		'msg_off' => "Disable timed message 📭",
 		'shure_delete_msg' => "🗑 Are your shure you want to \ndelete this timed message?",
 		'msg_saved' => "Message succesfully saved ✅",
+		'msg_deleted' => "Your timed message was deleted succesfully.",
+		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
 
 		/*
 		'' => "",
@@ -132,6 +134,8 @@ $languages = array(
 		'msg_off' => "Disable timed message 📭",
 		'shure_delete_msg' => "🗑 Are your shure you want to \ndelete this timed message?",
 		'msg_saved' => "Message succesfully saved ✅",
+		'msg_deleted' => "Your timed message was deleted succesfully.",
+		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
 	),
 
 	'uk' => array(
@@ -189,6 +193,8 @@ $languages = array(
 		'msg_off' => "Disable timed message 📭",
 		'shure_delete_msg' => "🗑 Are your shure you want to \ndelete this timed message?",
 		'msg_saved' => "Message succesfully saved ✅",
+		'msg_deleted' => "Your timed message was deleted succesfully.",
+		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
 	),
 );
 

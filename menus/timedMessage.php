@@ -137,7 +137,7 @@ class createTimedMessage extends InlineMenu
         $timer = $bot->getUserData('timer', $userId);
         $status = $bot->getUserData('status', $userId);
         createTimedMessage($chanelId, $text, $status, $timer);
-        $this->clearButtons()->menuText(msg('msg_saved', lang($userId)))->addButtonRow(InlineKeyboardButton::make(msg('confirm', $lang), callback_data: '@back'))->orNext('none')->showMenu();
+        $this->clearButtons()->menuText(msg('msg_saved', $lang))->addButtonRow(InlineKeyboardButton::make(msg('confirm', $lang), callback_data: '@back'))->orNext('none')->showMenu();
     }
 
     protected function updateMessage(Nutgram $bot)
@@ -205,7 +205,10 @@ class createTimedMessage extends InlineMenu
         list($msgId, $param, $value) = explode("/", $bot->callbackQuery()->data);
         $lang = lang($bot->userId());
         if ($param == "status" && $value == "deleted") {
-            
+            $this->clearButtons()->menuText(msg('delete_msg', $lang))
+                ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: $msgId.'@showMessage'),InlineKeyboardButton::make(msg('confirm', $lang), callback_data: $msgId.'@deleteMsg'))
+                ->orNext('none')
+                ->showMenu();
         } else {
             $bot->setUserData($param, $value, $bot->userId());
             $this->clearButtons()->menuText(msg($param.'_changed', $lang))
@@ -213,6 +216,21 @@ class createTimedMessage extends InlineMenu
                 ->orNext('none')
                 ->showMenu();
         }
+    }
+
+    protected function deleteMsg(Nutgram $bot)
+    {
+        $msgId = $bot->callbackQuery()->data;
+        superUpdater('timed_message', 'status', 'deleted', 'id', $msgId);
+        $bot->sendMessage(msg('msg_deleted', lang($bot->userId())));
+        $this->end();
+        $chanelId = $bot->getUserData('chanelId', $bot->userId());
+        $chanelConfigMenu = new ChanelSettings($bot);
+        $chanelConfigMenu->chanelMessages($bot, $chanelId);
+        $bot->deleteUserData('chanelId', $bot->userId());
+        $bot->deleteUserData('messageText', $bot->userId());
+        $bot->deleteUserData('timer', $bot->userId());
+        $bot->deleteUserData('status', $bot->userId());
     }
 
     protected function back(Nutgram $bot)
