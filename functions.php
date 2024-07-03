@@ -170,7 +170,7 @@ function createChanel($chanel){
     $timeNow = TIME_NOW;
     $type = $chanel['type']->value;
     mysqli_query($dbCon, "INSERT INTO chanel (chanelId, title, username, type, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $chanel['title'] . "', '" . $chanel['username'] . "', '" . $type . "', '" . $timeNow . "', '" . $timeNow . "')");
-    mysqli_query($dbCon, "INSERT INTO chanel_settings (chanelId) VALUES ('" . $chanel['id'] . "')");
+    mysqli_query($dbCon, "INSERT INTO chanel_settings (chanelId, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $timeNow . "', '" . $timeNow . "')");
     mysqli_close($dbCon);
 }
 
@@ -343,6 +343,14 @@ function updateTimedMessage($msgId, $text, $status, $timer) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     mysqli_query($dbCon, "UPDATE timed_message SET msg='$text', status='$status', timer='$timer', updated_at='$timeNow' WHERE id='$msgId'");
     mysqli_close($dbCon);
+}
+
+function getChanelAccess($chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT access FROM chanel_settings WHERE chanelId='$chanelId'");
+    $access = mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+    return $access['access'];
 }
 
 

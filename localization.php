@@ -73,6 +73,9 @@ $languages = array(
 		'msg_saved' => "Message succesfully saved ✅",
 		'msg_deleted' => "Your timed message was deleted succesfully.",
 		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
+		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
+		'creator' => "Creator",
+		'admin' => "Admin",
 
 		/*
 		'' => "",
@@ -136,6 +139,9 @@ $languages = array(
 		'msg_saved' => "Message succesfully saved ✅",
 		'msg_deleted' => "Your timed message was deleted succesfully.",
 		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
+		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
+		'creator' => "Creator",
+		'admin' => "Admin",
 	),
 
 	'uk' => array(
@@ -195,14 +201,24 @@ $languages = array(
 		'msg_saved' => "Message succesfully saved ✅",
 		'msg_deleted' => "Your timed message was deleted succesfully.",
 		'delete_msg' => "Are you shure you want to \ndelete this timed message?",
+		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
+		'creator' => "Creator",
+		'admin' => "Admin",
 	),
 );
 
-function msg($message_key, $user_language) {
-	global $languages;
-	if (!isset($languages[$user_language])) {$user_language = 'en';}
-	$res = isset($languages[$user_language][$message_key]) ? $languages[$user_language][$message_key] : "Unknown key";
-	return $res;
+function msg($message_key, $user_language, $variables = []) {
+    global $languages;
+    
+    // 'en' - standart language
+    if (!isset($languages[$user_language])) {$user_language = 'en';}
+
+    $message = isset($languages[$user_language][$message_key]) ? $languages[$user_language][$message_key] : "Unknown key";
+
+    // Replacing variables
+    if (!empty($variables)) {$message = strtr($message, $variables);}
+
+    return $message;
 }
 
 ?>

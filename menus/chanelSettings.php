@@ -161,10 +161,14 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+        $access = getChanelAccess($chanelId);
+        $msg = msg('set_chanel_access', $lang).msg($access, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('admin', $lang), callback_data: $chanelId.'/access/admin@updateChanelSetting'),InlineKeyboardButton::make(msg('creator', $lang), callback_data: $chanelId.'/access/creator@updateChanelSetting'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
+
     }
 
     protected function chanelUnlock(Nutgram $bot)
@@ -193,6 +197,17 @@ class ChanelSettings extends InlineMenu
         $this->end();
         $createTimedMessage = new createTimedMessage($bot);
         $createTimedMessage->showMessage($bot, $id);
+    }
+
+    protected function updateChanelSetting(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        list($chanelId, $param, $value) = explode("/", $bot->callbackQuery()->data);
+        superUpdater('chanel_settings', $param, $value, 'chanelId', $chanelId);
+        $access = getChanelAccess($chanelId);
+        $msg = msg('set_chanel_access', $lang).msg($access, $lang);
+        $this->menuText($msg)->orNext('none')->showMenu();
+
     }
 
     public function cancel(Nutgram $bot)
