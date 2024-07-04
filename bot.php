@@ -161,7 +161,6 @@ $bot->onMessage(function (Nutgram $bot) {
     $isBot = $bot->message()->is_bot;
     $chatId = $bot->chat()->id;
     $lang = lang($bot->userId());
-    createLog(TIME_NOW, $role, $bot->userId(), 'message', $text);
 
     if (str_contains($text, 'testMenu')) {
         $colorMenu = new ChooseColorMenu($bot);
@@ -181,23 +180,24 @@ $bot->onMessage(function (Nutgram $bot) {
         $supportMenu = new SupportMenu($bot);
         $supportMenu->start($bot);
     } else {
-        //$msg = "You send: ".$bot->message()->text;
-        //$bot->sendMessage($msg);
-
-
-        if ($isBot != true || $isBot!="" || $isBot!=" ") {
+        // Check if the message sender is a bot
+        if (!$isBot) {
+            // Check if the user is already in the system
             $checkUser = checkUser($bot->userId());
             if ($checkUser == 'no_such_user') {
+                // Register the user if not found in the system
                 $user_info = get_object_vars($bot->user());
-                $creating = createUser($user_info);
-                if ($creating) {
+                if (createUser($user_info)) {
                     createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
                 }
             }
+
+            // Log messages if not from bot itself and not a direct message
             if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
+                createChanelLog(TIME_NOW, 'user', $bot->userId(), $bot->chatId(), 'message', $text);
                 if (checkChanel($bot->chatId())) {
-                    $checkUserInChanel = checkUserInChanel($bot->userId(), $chatId);
-                    if ($checkUserInChanel == 'user_not_added' && $chatId != BOT_ID) {
+                    // Check if the user is added to the channel
+                    if (checkUserInChanel($bot->userId(), $chatId) == 'user_not_added' && $chatId != BOT_ID) {
                         addUserInChanel([
                             'userId' => $bot->userId(),
                             'chanelId' => $chatId,
@@ -206,7 +206,6 @@ $bot->onMessage(function (Nutgram $bot) {
                     }
                 }
             }
-            
         }
     }
 });

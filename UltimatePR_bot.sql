@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июл 01 2024 г., 14:03
+-- Время создания: Июл 04 2024 г., 13:59
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -30,6 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `chanel` (
   `chanelId` bigint(25) NOT NULL,
   `title` varchar(250) NOT NULL,
+  `users` int(11) DEFAULT NULL,
   `username` varchar(250) NOT NULL,
   `type` varchar(12) NOT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'active',
@@ -37,9 +38,21 @@ CREATE TABLE `chanel` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
 --
--- ССЫЛКИ ТАБЛИЦЫ `chanel`:
+-- Структура таблицы `chanel_log`
 --
+
+CREATE TABLE `chanel_log` (
+  `logId` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `entity` varchar(20) NOT NULL COMMENT '(user/bot/etc.)',
+  `entityId` bigint(20) NOT NULL,
+  `chanelId` bigint(25) NOT NULL,
+  `context` varchar(254) NOT NULL COMMENT '(message/command/..)',
+  `message` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -54,14 +67,10 @@ CREATE TABLE `chanel_settings` (
   `capcha` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `antispam` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `statistics` varchar(8) NOT NULL DEFAULT 'standart' COMMENT '(standart/payed)',
-  `timedMessages` int(11) NOT NULL DEFAULT 3 COMMENT '(quantity of avaible messages)'
+  `timedMessages` int(11) NOT NULL DEFAULT 3 COMMENT '(quantity of avaible messages)',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- ССЫЛКИ ТАБЛИЦЫ `chanel_settings`:
---   `chanelId`
---       `chanel` -> `chanelId`
---
 
 -- --------------------------------------------------------
 
@@ -78,10 +87,6 @@ CREATE TABLE `log` (
   `message` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- ССЫЛКИ ТАБЛИЦЫ `log`:
---
-
 -- --------------------------------------------------------
 
 --
@@ -97,12 +102,6 @@ CREATE TABLE `support` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- ССЫЛКИ ТАБЛИЦЫ `support`:
---   `userId`
---       `user` -> `userId`
---
-
 -- --------------------------------------------------------
 
 --
@@ -112,18 +111,12 @@ CREATE TABLE `support` (
 CREATE TABLE `timed_message` (
   `id` int(11) NOT NULL,
   `chanelId` bigint(25) NOT NULL,
-  `text` text NOT NULL,
+  `msg` text NOT NULL,
   `status` varchar(12) NOT NULL COMMENT '(on/off/deleted)',
   `timer` varchar(12) NOT NULL COMMENT '(3min/5min/10min/...)',
   `updated_at` datetime NOT NULL,
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- ССЫЛКИ ТАБЛИЦЫ `timed_message`:
---   `chanelId`
---       `chanel` -> `chanelId`
---
 
 -- --------------------------------------------------------
 
@@ -147,10 +140,6 @@ CREATE TABLE `user` (
   `banned` varchar(3) NOT NULL DEFAULT 'no'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- ССЫЛКИ ТАБЛИЦЫ `user`:
---
-
 -- --------------------------------------------------------
 
 --
@@ -168,14 +157,6 @@ CREATE TABLE `users_in_chanels` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- ССЫЛКИ ТАБЛИЦЫ `users_in_chanels`:
---   `userId`
---       `user` -> `userId`
---   `chanelId`
---       `chanel` -> `chanelId`
---
-
---
 -- Индексы сохранённых таблиц
 --
 
@@ -184,6 +165,12 @@ CREATE TABLE `users_in_chanels` (
 --
 ALTER TABLE `chanel`
   ADD PRIMARY KEY (`chanelId`);
+
+--
+-- Индексы таблицы `chanel_log`
+--
+ALTER TABLE `chanel_log`
+  ADD PRIMARY KEY (`logId`);
 
 --
 -- Индексы таблицы `chanel_settings`
@@ -229,6 +216,12 @@ ALTER TABLE `users_in_chanels`
 --
 -- AUTO_INCREMENT для сохранённых таблиц
 --
+
+--
+-- AUTO_INCREMENT для таблицы `chanel_log`
+--
+ALTER TABLE `chanel_log`
+  MODIFY `logId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT для таблицы `log`

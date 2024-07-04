@@ -124,7 +124,16 @@ function createLog($timestamp, $entity, $entityId, $context, $message) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $createLog = mysqli_query($dbCon, "INSERT INTO log (createdAt, entity, entityId, context, message) VALUES ('$timestamp', '$entity','$entityId','$context','$message')");
     if (!$createLog) {
-        error_log("error with create log in DB");
+        error_log("error with creating bot log in DB");
+    }
+    mysqli_close($dbCon);
+}
+
+function createChanelLog($timestamp, $entity, $entityId, $chanelId, $context, $message) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $createLog = mysqli_query($dbCon, "INSERT INTO chanel_log (created_at, entity, entityId, chanelId, context, message, status) VALUES ('$timestamp', '$entity','$entityId', '$chanelId','$context','$message', 'active')");
+    if (!$createLog) {
+        error_log("error with creating channel log in DB");
     }
     mysqli_close($dbCon);
 }
