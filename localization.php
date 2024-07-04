@@ -76,6 +76,9 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'stng_on' => "on",
+		'stng_off' => "off",
 
 		/*
 		'' => "",
@@ -142,6 +145,9 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'stng_on' => "on",
+		'stng_off' => "off",
 	),
 
 	'uk' => array(
@@ -204,6 +210,9 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'stng_on' => "on",
+		'stng_off' => "off",
 	),
 );
 

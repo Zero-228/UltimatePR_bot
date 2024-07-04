@@ -50,7 +50,17 @@ class ChanelSettings extends InlineMenu
                 $role = $chanel['role'];
                 $id = $chanel['chanelId'];
                 $callback = $id.'/'.$role.'@handleChanel';
-                $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
+                $access = getChanelAccess($id);
+                if ($access == 'admin') {
+                    if ($role == 'admin' || $role == 'creator') {
+                        $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
+                    }
+                } else {
+                    if ($role == $access) {
+                        $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
+                    }
+                }
+                
             }
             $this
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
@@ -63,7 +73,21 @@ class ChanelSettings extends InlineMenu
         //Обрабатываем даныне из колбэка 
         list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
         $chanelInfo = getChanelInfo($chanelId);
-        $text = $chanelInfo['title']."\n\n"."chanel settings";
+        $title = $chanelInfo['title'];
+        if(strlen($title) > 35){$title = substr($title, 0, 32);$title .= "..."; }
+        
+        $access = $chanelInfo['access'] == 'creator' ? msg('creator', $lang) : msg('admin', $lang);
+        $capcha = $chanelInfo['capcha'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $antispam = $chanelInfo['antispam'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $variables = [
+            '{users}' => $chanelInfo['users'],
+            '{access}' => $access,
+            '{capcha}' => $capcha,
+            '{antispam}' => $antispam,
+            '{last_update}' => $chanelInfo['latest_updated_at'],
+        ];
+
+        $text = "👥   ".$title."\n======================"."\n\n".msg("chanel_settings", $lang, $variables)."\n======================";
         $this
             ->clearButtons()->menuText($text)
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_subscription', $lang), callback_data: $chanelId.'@chanelSubscription'))

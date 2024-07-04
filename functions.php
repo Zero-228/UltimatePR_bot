@@ -169,7 +169,7 @@ function createChanel($chanel){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $timeNow = TIME_NOW;
     $type = $chanel['type']->value;
-    mysqli_query($dbCon, "INSERT INTO chanel (chanelId, title, username, type, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $chanel['title'] . "', '" . $chanel['username'] . "', '" . $type . "', '" . $timeNow . "', '" . $timeNow . "')");
+    mysqli_query($dbCon, "INSERT INTO chanel (chanelId, title, users, username, type, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $chanel['title'] . "', '" . 0 . "', '" . $chanel['username'] . "', '" . $type . "', '" . $timeNow . "', '" . $timeNow . "')");
     mysqli_query($dbCon, "INSERT INTO chanel_settings (chanelId, updated_at, created_at) VALUES ('" . $chanel['id'] . "', '" . $timeNow . "', '" . $timeNow . "')");
     mysqli_close($dbCon);
 }
@@ -242,10 +242,20 @@ function checkUsersChanel($userId) {
 
 function getChanelInfo($chanelId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    $query_info = mysqli_query($dbCon, "SELECT * FROM chanel WHERE chanelId='$chanelId'");
-    $fetch_info = mysqli_fetch_assoc($query_info);
-    return $fetch_info;
+    $query = "
+        SELECT 
+            c.title, c.users, c.username, c.type, c.status, c.updated_at AS chanel_updated_at,
+            cs.unlocked, cs.access, cs.capcha, cs.antispam, cs.statistics, cs.updated_at AS settings_updated_at,
+            GREATEST(c.updated_at, cs.updated_at) AS latest_updated_at
+        FROM chanel c
+        LEFT JOIN chanel_settings cs ON c.chanelId = cs.chanelId
+        WHERE c.chanelId = '$chanelId'";
+
+    $result = mysqli_query($dbCon, $query);
+    $combined_info = mysqli_fetch_assoc($result);
     mysqli_close($dbCon);
+
+    return $combined_info;
 }
 
 function createSupportMsg($userId, $msg){
