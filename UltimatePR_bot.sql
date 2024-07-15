@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июл 04 2024 г., 13:59
+-- Время создания: Июл 15 2024 г., 15:40
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -20,6 +20,20 @@ SET time_zone = "+00:00";
 --
 -- База данных: `ultimatepr_bot`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `capcha`
+--
+
+CREATE TABLE `capcha` (
+  `userId` bigint(20) NOT NULL,
+  `chanelId` bigint(25) NOT NULL,
+  `status` varchar(9) NOT NULL COMMENT '(pending/approved/failed)',
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -47,11 +61,14 @@ CREATE TABLE `chanel` (
 CREATE TABLE `chanel_log` (
   `logId` int(11) NOT NULL,
   `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   `entity` varchar(20) NOT NULL COMMENT '(user/bot/etc.)',
   `entityId` bigint(20) NOT NULL,
   `chanelId` bigint(25) NOT NULL,
   `context` varchar(254) NOT NULL COMMENT '(message/command/..)',
-  `message` text NOT NULL
+  `message` text NOT NULL,
+  `status` varchar(15) NOT NULL COMMENT '(active/edited/deleted/..)',
+  `messageId` bigint(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -161,6 +178,13 @@ CREATE TABLE `users_in_chanels` (
 --
 
 --
+-- Индексы таблицы `capcha`
+--
+ALTER TABLE `capcha`
+  ADD UNIQUE KEY `ID` (`userId`,`chanelId`) USING BTREE,
+  ADD KEY `capcha_ibfk_2` (`chanelId`);
+
+--
 -- Индексы таблицы `chanel`
 --
 ALTER TABLE `chanel`
@@ -250,6 +274,13 @@ ALTER TABLE `users_in_chanels`
 --
 -- Ограничения внешнего ключа сохраненных таблиц
 --
+
+--
+-- Ограничения внешнего ключа таблицы `capcha`
+--
+ALTER TABLE `capcha`
+  ADD CONSTRAINT `capcha_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`userId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `capcha_ibfk_2` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `chanel_settings`

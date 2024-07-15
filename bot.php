@@ -140,6 +140,24 @@ $bot->onCallbackQueryData('callback_change_lang_to {param}', function (Nutgram $
     $bot->answerCallbackQuery();
 });
 
+$bot->onCallbackQueryData('passCapcha', function (Nutgram $bot) {
+    $chanelId = $bot->chat()->id;
+    $capcha = checkCapcha($bot->userId(), $chanelId);
+    if ($capcha['status'] == 'pending') {
+        updateCapcha($bot->userId(), $chanelId, 'approved');
+    }
+    $log = getCapchaLog($bot->userId(), $chanelId);
+    foreach ($log as $cpcha) {
+        try {
+            $bot->deleteMessage($chanelId, $cpcha['messageId']);
+        } catch (Exception $e) {
+            error_log($e);
+        }
+        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $cpcha['messageId']);
+    }
+    $bot->answerCallbackQuery();
+});
+
 $bot->onCallbackQueryData('callback_cancel', function (Nutgram $bot) {
     $role = checkRole($bot->userId());
     if (checkUserStatus($bot->userId() == 'deleted')) {
@@ -194,7 +212,6 @@ $bot->onMessage(function (Nutgram $bot) {
 
             // Log messages if not from bot itself and not a direct message
             if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
-                createChanelLog(TIME_NOW, 'user', $bot->userId(), $bot->chatId(), 'message', $text);
                 if (checkChanel($bot->chatId())) {
                     // Check if the user is added to the channel
                     if (checkUserInChanel($bot->userId(), $chatId) == 'user_not_added' && $chatId != BOT_ID) {
@@ -204,6 +221,70 @@ $bot->onMessage(function (Nutgram $bot) {
                             'role' => 'user',
                         ]);
                     }
+                }
+                $chanelId = $bot->chatId();
+                $settings = getChanelSettings($chanelId);
+                if ($settings['capcha'] == 'on') {
+                    $checkCapcha = checkCapcha($bot->userId(), $chanelId);
+                    if (!$checkCapcha) {
+                        try {
+                            $bot->deleteMessage($chanelId,$bot->messageId());
+                        } catch (Exception $e) {
+                            error_log($e);
+                        }
+                        $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
+                        $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
+                        createCapcha($bot->userId(), $chanelId);
+                    }else {
+                        if ($checkCapcha['status'] == 'pending') {
+                            if ((time()-strtotime("3 MINUTE"))>$checkCapcha['created_at']) {
+                                $bot->restrictChatMember($chanelId, $bot->userId(), [
+                                    'permissions' => [
+                                        'can_send_messages' => false,
+                                        'can_send_media_messages' => false,
+                                        'can_send_polls' => false,
+                                        'can_send_other_messages' => false,
+                                        'can_add_web_page_previews' => false,
+                                        'can_change_info' => false,
+                                        'can_invite_users' => false,
+                                        'can_pin_messages' => false,
+                                    ],
+                                    'until_date' => time() + 10 * 60 // Текущий UNIX-времени + 10 минут
+                                ]);
+                                updateCapcha($bot->userId(), $chanelId, 'failed');
+                            } else {
+                                try {
+                                    $bot->deleteMessage($chanelId,$bot->messageId());
+                                } catch (Exception $e) {
+                                    error_log($e);
+                                }
+                                $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
+                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
+                            }
+                        }
+                        if ($checkCapcha['status'] == 'failed') {
+                            if ((time()-strtotime("10 MINUTE"))>$checkCapcha['updated_at']) {
+                                try {
+                                    $bot->deleteMessage($chanelId,$bot->messageId());
+                                } catch (Exception $e) {
+                                    error_log($e);
+                                }
+                                $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
+                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
+                                updateCapcha($bot->userId(), $chanelId, 'pending');
+                            }
+                        }
+                        if ($checkCapcha['status'] == 'approved') {
+                            //log
+                        }
+                    }
+                } elseif ($settings['antispam'] == 'on') {
+                    
+                } else {
+                    //============
                 }
             }
         }

@@ -129,9 +129,9 @@ function createLog($timestamp, $entity, $entityId, $context, $message) {
     mysqli_close($dbCon);
 }
 
-function createChanelLog($timestamp, $entity, $entityId, $chanelId, $context, $message) {
+function createChanelLog($timestamp, $entity, $entityId, $chanelId, $context, $message, $messageId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    $createLog = mysqli_query($dbCon, "INSERT INTO chanel_log (created_at, entity, entityId, chanelId, context, message, status) VALUES ('$timestamp', '$entity','$entityId', '$chanelId','$context','$message', 'active')");
+    $createLog = mysqli_query($dbCon, "INSERT INTO chanel_log (created_at, updated_at, entity, entityId, chanelId, context, message, status, messageId) VALUES ('$timestamp', '$timestamp', '$entity','$entityId', '$chanelId','$context','$message', 'active', '$messageId')");
     if (!$createLog) {
         error_log("error with creating channel log in DB");
     }
@@ -350,10 +350,10 @@ function getTimedMessage($msgId) {
     return $message;
 }
 
-function superUpdater($db, $updateParam, $updateValue, $whereParam, $whereValue) {
+function superUpdater($db_table, $updateParam, $updateValue, $whereParam, $whereValue) {
     $timeNow = TIME_NOW;
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    mysqli_query($dbCon, "UPDATE $db SET $updateParam='$updateValue', updated_at='$timeNow' WHERE $whereParam='$whereValue'");
+    mysqli_query($dbCon, "UPDATE $db_table SET $updateParam='$updateValue', updated_at='$timeNow' WHERE $whereParam='$whereValue'");
     mysqli_close($dbCon);
 }
 
@@ -364,14 +364,58 @@ function updateTimedMessage($msgId, $text, $status, $timer) {
     mysqli_close($dbCon);
 }
 
-function getChanelAccess($chanelId) {
+function getChanelSettings($chanelId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-    $query = mysqli_query($dbCon, "SELECT access FROM chanel_settings WHERE chanelId='$chanelId'");
+    $query = mysqli_query($dbCon, "SELECT * FROM chanel_settings WHERE chanelId='$chanelId'");
     $access = mysqli_fetch_assoc($query);
     mysqli_close($dbCon);
-    return $access['access'];
+    return $access;
 }
 
+function checkCapcha($userId, $chanelId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT status, created_at, updated_at FROM capcha WHERE chanelId='$chanelId' AND userId='$userId'");
+    $numRow = mysqli_num_rows($query);
+    if ($numRow == 1) {
+        return mysqli_fetch_assoc($query);
+    } else {
+        return false;
+    }
+    mysqli_close($dbCon);
+}
+
+function updateCapcha($userId, $chanelId, $status){
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "UPDATE capcha SET status='$status' WHERE userId='$userId' AND chanelId='$chanelId'");
+    mysqli_close($dbCon);
+}
+
+function createCapcha($userId, $chanelId){
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "INSERT INTO capcha (userId, chanelId, status, updated_at, created_at) VALUES ('$userId', '$chanelId', 'pending', '$timeNow', '$timeNow')");
+    mysqli_close($dbCon);
+}
+
+function getCapchaLog($userId, $chanelId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT messageId, updated_at, created_at FROM chanel_log WHERE entity='bot' AND context='capcha' AND status='active' AND chanelId='$chanelId' AND message='$userId'");
+    
+    $logs = [];
+    while ($row = mysqli_fetch_assoc($query)) {
+        $logs[] = $row;
+    }
+    
+    mysqli_close($dbCon);
+    return $logs;
+}
+
+
+function checkAntispam($userId, $chanelId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_close($dbCon);
+}
 
 function writeLogFile($string, $clear = false){
     $timeNow = TIME_NOW;

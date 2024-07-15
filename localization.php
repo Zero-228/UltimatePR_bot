@@ -79,6 +79,9 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on",
 		'stng_off' => "off",
+		'capcha_msg' => "Please, press the button below\nto pass the caphca ❗️",
+		'capcha_btn' => "I'm not a bot!",
+		'' => "",
 
 		/*
 		'' => "",
@@ -148,6 +151,8 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on",
 		'stng_off' => "off",
+		'capcha_msg' => "Please, press the button below\nto pass the caphca ❗️",
+		'capcha_btn' => "I'm not a bot!",
 	),
 
 	'uk' => array(
@@ -213,6 +218,8 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on",
 		'stng_off' => "off",
+		'capcha_msg' => "Please, press the button below\nto pass the caphca ❗️",
+		'capcha_btn' => "I'm not a bot!",
 	),
 );
 

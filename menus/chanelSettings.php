@@ -50,13 +50,13 @@ class ChanelSettings extends InlineMenu
                 $role = $chanel['role'];
                 $id = $chanel['chanelId'];
                 $callback = $id.'/'.$role.'@handleChanel';
-                $access = getChanelAccess($id);
-                if ($access == 'admin') {
+                $settings = getChanelSettings($id);
+                if ($settings['access'] == 'admin') {
                     if ($role == 'admin' || $role == 'creator') {
                         $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
                     }
                 } else {
-                    if ($role == $access) {
+                    if ($role == $settings['access']) {
                         $this->addButtonRow(InlineKeyboardButton::make($name, callback_data: $callback));
                     }
                 }
