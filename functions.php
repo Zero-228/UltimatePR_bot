@@ -90,7 +90,7 @@ function getUsername($userId){
         return $username['username'];
     } else {
         mysqli_close($dbCon);
-        return msg("friend", $bot->userId());
+        return msg("user", 'en');
     }
 }
 

@@ -72,6 +72,9 @@ class ChanelSettings extends InlineMenu
         $lang = lang($bot->userId());
         //Обрабатываем даныне из колбэка 
         list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
+        //Обновляем кол-во участнокив в группе
+        $memberCount = $bot->getChatMemberCount($chanelId);
+        superUpdater('chanel', 'users', $memberCount, 'chanelId', $chanelId);
         $chanelInfo = getChanelInfo($chanelId);
         $title = $chanelInfo['title'];
         if(strlen($title) > 35){$title = substr($title, 0, 32);$title .= "..."; }
@@ -161,7 +164,11 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+        $chanelInfo = getChanelInfo($chanelId);
+        $capcha = $chanelInfo['capcha'];
+        $msg = msg('set_chanel_capcha', $lang).msg('stng_'.$capcha, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/capcha/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/capcha/on@updateChanelSetting'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
@@ -173,7 +180,11 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+        $chanelInfo = getChanelInfo($chanelId);
+        $antispam = $chanelInfo['antispam'];
+        $msg = msg('set_chanel_antispam', $lang).msg('stng_'.$antispam, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antispam/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antispam/on@updateChanelSetting'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
@@ -185,7 +196,8 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $access = getChanelAccess($chanelId);
+        $chanelInfo = getChanelInfo($chanelId);
+        $access = $chanelInfo['access'];
         $msg = msg('set_chanel_access', $lang).msg($access, $lang);
         $this->clearButtons()->menuText($msg)
             ->addButtonRow(InlineKeyboardButton::make(msg('admin', $lang), callback_data: $chanelId.'/access/admin@updateChanelSetting'),InlineKeyboardButton::make(msg('creator', $lang), callback_data: $chanelId.'/access/creator@updateChanelSetting'))
@@ -228,8 +240,14 @@ class ChanelSettings extends InlineMenu
         $lang = lang($bot->userId());
         list($chanelId, $param, $value) = explode("/", $bot->callbackQuery()->data);
         superUpdater('chanel_settings', $param, $value, 'chanelId', $chanelId);
-        $access = getChanelAccess($chanelId);
-        $msg = msg('set_chanel_access', $lang).msg($access, $lang);
+        $chanelInfo = getChanelInfo($chanelId);
+        $status = '';
+        if ($param == 'access') {
+            $status = msg($chanelInfo['access'], $lang);
+        } else {
+            $status = msg("stng_".$chanelInfo[$param], $lang);
+        }
+        $msg = msg('set_chanel_'.$param, $lang).$status;
         $this->menuText($msg)->orNext('none')->showMenu();
 
     }
