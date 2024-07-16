@@ -233,7 +233,8 @@ $bot->onMessage(function (Nutgram $bot) {
                             error_log($e);
                         }
                         $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
-                        $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                        $username = getUsername($bot->userId());
+                        $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang, ['{username}'=>$username]), reply_markup: $capchaKey);
                         createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
                         createCapcha($bot->userId(), $chanelId);
                     }else {
@@ -250,7 +251,7 @@ $bot->onMessage(function (Nutgram $bot) {
                                         'can_invite_users' => false,
                                         'can_pin_messages' => false,
                                     ],
-                                    'until_date' => time() + 10 * 60 // Текущий UNIX-времени + 10 минут
+                                    'until_date' => time() + 30 * 60 // Текущий UNIX-времени + 10 минут
                                 ]);
                                 updateCapcha($bot->userId(), $chanelId, 'failed');
                             } else {
@@ -260,7 +261,8 @@ $bot->onMessage(function (Nutgram $bot) {
                                     error_log($e);
                                 }
                                 $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
-                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                                $username = getUsername($bot->userId());
+                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang, ['{username}'=>$username]), reply_markup: $capchaKey);
                                 createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
                             }
                         }
@@ -272,19 +274,64 @@ $bot->onMessage(function (Nutgram $bot) {
                                     error_log($e);
                                 }
                                 $capchaKey = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('capcha_btn', $lang), callback_data: 'passCapcha'));
-                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang), reply_markup: $capchaKey);
+                                $username = getUsername($bot->userId());
+                                $bot->sendMessage(chat_id: $chanelId,text: msg('capcha_msg', $lang, ['{username}'=>$username]), reply_markup: $capchaKey);
                                 createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'capcha', $bot->userId(), $bot->messageId()+1);
                                 updateCapcha($bot->userId(), $chanelId, 'pending');
                             }
                         }
                         if ($checkCapcha['status'] == 'approved') {
-                            //log
+                            createChanelLog(TIME_NOW, 'user', $bot->userId(), $chanelId, 'message', $bot->message()->text, $bot->messageId());
                         }
                     }
-                } elseif ($settings['antispam'] == 'on') {
-                    
                 } else {
-                    //============
+                    createChanelLog(TIME_NOW, 'user', $bot->userId(), $chanelId, 'message', $bot->message()->text, $bot->messageId());
+                }
+                if ($settings['antispam'] == 'on') {
+                    $logs = checkAntispam($bot->userId(), $chanelId, 3); // Получить последние 3 сообщения за последние 3 секунды
+                    
+                    if (count($logs) >= 3) {
+                        $firstMessageTime = strtotime($logs[0]['created_at']);
+                        $lastMessageTime = strtotime($logs[2]['created_at']);
+                        $timeDiff = $firstMessageTime - $lastMessageTime;
+
+                        if ($timeDiff <= 3) {
+                                sleep(1);
+                            $previousWarnings = checkPreviousWarnings($bot->userId(), $chanelId, 3600); // Проверка на наличие предупреждений за последний час
+                            
+                            if ($previousWarnings < 1) {
+                                // Удалить сообщения
+                                foreach ($logs as $log) {
+                                    $bot->deleteMessage($chanelId, $log['messageId']);
+                                }
+
+                                // Отправить предупреждение
+                                $username = getUsername($bot->userId());
+                                $bot->sendMessage(chat_id: $chanelId, text: msg("spam_warn", $lang, ['{username}'=>$username]));
+
+                                // Логировать предупреждение
+                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
+                            } else {
+                                // Мут пользователя
+                                $bot->restrictChatMember($chanelId, $bot->userId(), [
+                                    'permissions' => [
+                                        'can_send_messages' => false,
+                                        'can_send_media_messages' => false,
+                                        'can_send_polls' => false,
+                                        'can_send_other_messages' => false,
+                                        'can_add_web_page_previews' => false,
+                                        'can_change_info' => false,
+                                        'can_invite_users' => false,
+                                        'can_pin_messages' => false,
+                                    ],
+                                    'until_date' => time() + 10 * 60 // Мут на 10 минут
+                                ]);
+
+                                // Логировать мут
+                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
+                            }
+                        }
+                    }
                 }
             }
         }

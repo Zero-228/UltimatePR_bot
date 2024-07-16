@@ -79,12 +79,13 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
-		'capcha_msg' => "{username}, press the button below\nto pass the caphca ❗️",
+		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
 		'capcha_btn' => "I'm not a bot!",
 		'set_chanel_capcha' => "☑️ Simple anti-bot verification. ☑️\nUser must press the button in \na 3 minutes or will be muted for a \nhalf an hour \n\nCurrent setting: ",
 		'set_chanel_antispam' => "🚯 Antispam filter 🚯\nMutes user after second attempt \nof sending 3 messages within a \n2 seconds\n\nCurrent setting: ",
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
+		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
 		/*
 		'' => "",
 		*/
@@ -153,12 +154,13 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
-		'capcha_msg' => "Please, press the button below\nto pass the caphca ❗️",
+		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
 		'capcha_btn' => "I'm not a bot!",
 		'set_chanel_capcha' => "☑️ Simple anti-bot verification. ☑️\nUser must press the button in \na 3 minutes or will be muted for a \nhalf an hour \n\nCurrent setting: ",
 		'set_chanel_antispam' => "🚯 Antispam filter 🚯\nMutes user after second attempt \nof sending 3 messages within a \n2 seconds\n\nCurrent setting: ",
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
+		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
 	),
 
 	'uk' => array(
@@ -224,12 +226,13 @@ $languages = array(
 		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
-		'capcha_msg' => "Please, press the button below\nto pass the caphca ❗️",
+		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
 		'capcha_btn' => "I'm not a bot!",
 		'set_chanel_capcha' => "☑️ Simple anti-bot verification. ☑️\nUser must press the button in \na 3 minutes or will be muted for a \nhalf an hour \n\nCurrent setting: ",
 		'set_chanel_antispam' => "🚯 Antispam filter 🚯\nMutes user after second attempt \nof sending 3 messages within a \n2 seconds\n\nCurrent setting: ",
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
+		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
 	),
 );
 

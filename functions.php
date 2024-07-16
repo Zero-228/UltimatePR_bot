@@ -411,10 +411,25 @@ function getCapchaLog($userId, $chanelId){
     return $logs;
 }
 
-
-function checkAntispam($userId, $chanelId){
+function checkAntispam($userId, $chanelId, $timeWindowInSeconds = 10) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeLimit = time() - $timeWindowInSeconds;
+    $query = mysqli_query($dbCon, "SELECT message, messageId, created_at FROM chanel_log WHERE context='message' AND status='active' AND chanelId='$chanelId' AND entityId='$userId' AND created_at > '$timeLimit' ORDER BY created_at DESC LIMIT 3");
+    $logs = [];
+    while ($row = mysqli_fetch_assoc($query)) {
+        $logs[] = $row;
+    }
     mysqli_close($dbCon);
+    return $logs;
+}
+
+function checkPreviousWarnings($userId, $chanelId, $timeWindowInSeconds) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeLimit = time() - $timeWindowInSeconds;
+    $query = mysqli_query($dbCon, "SELECT COUNT(*) as count FROM chanel_log WHERE context='spam_warn' AND chanelId='$chanelId' AND entityId='$userId' AND created_at > '$timeLimit'");
+    $result = mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+    return $result['count'];
 }
 
 function writeLogFile($string, $clear = false){
