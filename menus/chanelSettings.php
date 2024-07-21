@@ -67,11 +67,13 @@ class ChanelSettings extends InlineMenu
         }
     }
 
-    protected function handleChanel(Nutgram $bot)
+    public function handleChanel(Nutgram $bot, $chanelId = null, $userRole = null)
     {
+        if ($chanelId == null) {
+            list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
+        }
         $lang = lang($bot->userId());
         //Обрабатываем даныне из колбэка 
-        list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
         //Обновляем кол-во участнокив в группе
         $memberCount = $bot->getChatMemberCount($chanelId);
         superUpdater('chanel', 'users', $memberCount, 'chanelId', $chanelId);
@@ -95,7 +97,7 @@ class ChanelSettings extends InlineMenu
             ->clearButtons()->menuText($text)
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_subscription', $lang), callback_data: $chanelId.'@chanelSubscription'))
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_statistic', $lang), callback_data: $chanelId.'@chanelStatistics'),InlineKeyboardButton::make(msg('btn_access', $lang), callback_data: $chanelId.'@chanelAccess'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_capcha', $lang), callback_data: $chanelId.'@chanelCapcha'),InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: $chanelId.'@chanelAntispam'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_capcha', $lang), callback_data: $chanelId.'@chanelCapcha'),InlineKeyboardButton::make(msg('btn_filters', $lang), callback_data: $chanelId.'@chanelFilters'))
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_messages', $lang), callback_data: $chanelId.'@chanelMessages'))
             ->addButtonRow(InlineKeyboardButton::make(msg('btn_unlock', $lang), callback_data: $chanelId.'@chanelUnlock'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
@@ -174,20 +176,12 @@ class ChanelSettings extends InlineMenu
             ->showMenu();
     }
 
-    protected function chanelAntispam(Nutgram $bot)
+    protected function chanelFilters(Nutgram $bot)
     {
-        $lang = lang($bot->userId());
         $chanelId = $bot->callbackQuery()->data;
-        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
-        $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $chanelInfo = getChanelInfo($chanelId);
-        $antispam = $chanelInfo['antispam'];
-        $msg = msg('set_chanel_antispam', $lang).msg('stng_'.$antispam, $lang);
-        $this->clearButtons()->menuText($msg)
-            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antispam/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antispam/on@updateChanelSetting'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->orNext('none')
-            ->showMenu();
+        $this->end();
+        $filterMenu = new FilterMenu($bot, $chanelId);
+        $filterMenu->start($bot);
     }
 
     protected function chanelAccess(Nutgram $bot)

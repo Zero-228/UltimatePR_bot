@@ -423,6 +423,13 @@ function checkAntispam($userId, $chanelId, $timeWindowInSeconds = 10) {
     return $logs;
 }
 
+function getPrevMsg($userId, $offset = 1) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT chanelId, status, message, messageId, created_at FROM chanel_log WHERE entityId='$userId' ORDER BY created_at DESC LIMIT 1 OFFSET $offset");
+    return mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+}
+
 function checkPreviousWarnings($userId, $chanelId, $timeWindowInSeconds) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $timeLimit = time() - $timeWindowInSeconds;

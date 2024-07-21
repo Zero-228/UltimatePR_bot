@@ -33,9 +33,9 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
 $filesystemAdapter = new FilesystemAdapter();
-$cache = new Psr16Cache($filesystemAdapter);
+$cacheo = new Psr16Cache($filesystemAdapter);
 global $filesystemAdapter;
-$bot = new Nutgram(BOT_TOKEN, new Configuration(cache: $cache));
+$bot = new Nutgram(BOT_TOKEN, new Configuration(cache: $cacheo));
 $bot->setRunningMode(Webhook::class);
 $bot->setWebhook(WEBHOOK_URL);
 
@@ -43,29 +43,31 @@ $data = file_get_contents('php://input');
 writeLogFile($data, true);
 
 $bot->onCommand('start', function(Nutgram $bot) {
-    $checkUser = checkUser($bot->userId());
-    if ($checkUser == 'no_such_user') {
-        $user_info = get_object_vars($bot->user());
-        $creating = createUser($user_info, true);
-        if ($creating) {
+    if ($bot->chatId() == $bot->userId()) {
+        $checkUser = checkUser($bot->userId());
+        if ($checkUser == 'no_such_user') {
+            $user_info = get_object_vars($bot->user());
+            $creating = createUser($user_info, true);
+            if ($creating) {
+                $lang = lang($bot->userId());
+                $role = checkRole($bot->userId());
+                $bot->sendMessage(msg('welcome', $lang), reply_markup: constructMenuButtons($lang));
+                createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
+            }
+        } elseif ($checkUser == 'one_user') {
+            if (checkUserStatus($bot->userId()) == 'deleted') {
+                userActivatedBot($bot->userId());
+            }
+            if (checkUserInBot($bot->userId()) == false) {
+                userStartedBot($bot->userId());
+            }
             $lang = lang($bot->userId());
             $role = checkRole($bot->userId());
+            createLog(TIME_NOW, $role, $bot->userId(), 'command', '/start');
             $bot->sendMessage(msg('welcome', $lang), reply_markup: constructMenuButtons($lang));
-            createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
+        } else {
+            $bot->sendMessage('WTF are you?');
         }
-    } elseif ($checkUser == 'one_user') {
-        if (checkUserStatus($bot->userId()) == 'deleted') {
-            userActivatedBot($bot->userId());
-        }
-        if (checkUserInBot($bot->userId()) == false) {
-            userStartedBot($bot->userId());
-        }
-        $lang = lang($bot->userId());
-        $role = checkRole($bot->userId());
-        createLog(TIME_NOW, $role, $bot->userId(), 'command', '/start');
-        $bot->sendMessage(msg('welcome', $lang), reply_markup: constructMenuButtons($lang));
-    } else {
-        $bot->sendMessage('WTF are you?');
     }
 });
 
@@ -179,6 +181,8 @@ $bot->onMessage(function (Nutgram $bot) {
     $isBot = $bot->message()->is_bot;
     $chatId = $bot->chat()->id;
     $lang = lang($bot->userId());
+    $filesystemAdapter = new FilesystemAdapter();
+    $cache = new Psr16Cache($filesystemAdapter);
 
     if (str_contains($text, 'testMenu')) {
         $colorMenu = new ChooseColorMenu($bot);
@@ -288,50 +292,45 @@ $bot->onMessage(function (Nutgram $bot) {
                     createChanelLog(TIME_NOW, 'user', $bot->userId(), $chanelId, 'message', $bot->message()->text, $bot->messageId());
                 }
                 if ($settings['antispam'] == 'on') {
-                    $logs = checkAntispam($bot->userId(), $chanelId, 3); // Получить последние 3 сообщения за последние 3 секунды
-                    
-                    if (count($logs) >= 3) {
-                        $firstMessageTime = strtotime($logs[0]['created_at']);
-                        $lastMessageTime = strtotime($logs[2]['created_at']);
-                        $timeDiff = $firstMessageTime - $lastMessageTime;
-
-                        if ($timeDiff <= 3) {
-                                sleep(1);
-                            $previousWarnings = checkPreviousWarnings($bot->userId(), $chanelId, 3600); // Проверка на наличие предупреждений за последний час
-                            
-                            if ($previousWarnings < 1) {
+                    $prevMsg = $cache->get("prevMsg_{$bot->userId()}");
+                    $prevPrevMsg = $cache->get("prevPrevMsg_{$bot->userId()}");
+                    if ($prevMsg && $prevMsg['message'] == $text && (strtotime($prevMsg['created_at']) + 5) > time()) {
+                            if ($prevPrevMsg && $prevPrevMsg['message'] == $text && (strtotime($prevPrevMsg['created_at']) + 10) > time()) {
                                 // Удалить сообщения
-                                foreach ($logs as $log) {
-                                    $bot->deleteMessage($chanelId, $log['messageId']);
+                                $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
+                                $bot->deleteMessage($chatId, $prevMsg['messageId']);
+                                $bot->deleteMessage($chatId, $bot->messageId());
+
+                                // Проверка на наличие предупреждений за последний час
+                                $previousWarnings = checkPreviousWarnings($bot->userId(), $chatId, 3600);
+                                if ($previousWarnings < 1) {
+                                    // Отправить предупреждение
+                                    $username = getUsername($bot->userId());
+                                    $bot->sendMessage(chat_id: $chatId, text: msg("spam_warn", $lang, ['{username}'=>$username]));
+                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
+                                } else {
+                                    // Мут пользователя
+                                    $bot->restrictChatMember($chatId, $bot->userId(), [
+                                        'permissions' => [
+                                            'can_send_messages' => false,
+                                            'can_send_media_messages' => false,
+                                            'can_send_polls' => false,
+                                            'can_send_other_messages' => false,
+                                            'can_add_web_page_previews' => false,
+                                            'can_change_info' => false,
+                                            'can_invite_users' => false,
+                                            'can_pin_messages' => false,
+                                        ],
+                                        'until_date' => time() + 10 * 60 // Мут на 10 минут
+                                    ]);
+                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
                                 }
-
-                                // Отправить предупреждение
-                                $username = getUsername($bot->userId());
-                                $bot->sendMessage(chat_id: $chanelId, text: msg("spam_warn", $lang, ['{username}'=>$username]));
-
-                                // Логировать предупреждение
-                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
-                            } else {
-                                // Мут пользователя
-                                $bot->restrictChatMember($chanelId, $bot->userId(), [
-                                    'permissions' => [
-                                        'can_send_messages' => false,
-                                        'can_send_media_messages' => false,
-                                        'can_send_polls' => false,
-                                        'can_send_other_messages' => false,
-                                        'can_add_web_page_previews' => false,
-                                        'can_change_info' => false,
-                                        'can_invite_users' => false,
-                                        'can_pin_messages' => false,
-                                    ],
-                                    'until_date' => time() + 10 * 60 // Мут на 10 минут
-                                ]);
-
-                                // Логировать мут
-                                createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chanelId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
                             }
                         }
-                    }
+
+                        // Обновление кэша предыдущих сообщений
+                        $cache->set("prevPrevMsg_{$bot->userId()}", $prevMsg);
+                        $cache->set("prevMsg_{$bot->userId()}", ['message' => $text, 'messageId' => $bot->messageId(), 'created_at' => time()]);
                 }
             }
         }
