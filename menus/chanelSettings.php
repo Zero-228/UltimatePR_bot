@@ -83,12 +83,28 @@ class ChanelSettings extends InlineMenu
         
         $access = $chanelInfo['access'] == 'creator' ? msg('creator', $lang) : msg('admin', $lang);
         $capcha = $chanelInfo['capcha'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
-        $antispam = $chanelInfo['antispam'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $filters = "";
+        if ($chanelInfo['antispam'] == 'on' || $chanelInfo['antiflood'] == 'on'|| $chanelInfo['antibot'] == 'on'|| $chanelInfo['antilink'] == 'on') {
+            if ($chanelInfo['antispam'] == 'on') {
+                $filters .= " 🚯";
+            }
+            if ($chanelInfo['antiflood'] == 'on') {
+                $filters .= " 😷";
+            }
+            if ($chanelInfo['antilink'] == 'on') {
+                $filters .= " 🔗";
+            }
+            if ($chanelInfo['antibot'] == 'on') {
+                $filters .= " 🤖";
+            }
+        } else {
+            $filters = msg('stng_off', $lang);
+        }
         $variables = [
             '{users}' => $chanelInfo['users'],
             '{access}' => $access,
             '{capcha}' => $capcha,
-            '{antispam}' => $antispam,
+            '{filters}' => $filters,
             '{last_update}' => $chanelInfo['latest_updated_at'],
         ];
 

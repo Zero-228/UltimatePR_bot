@@ -254,7 +254,7 @@ function getChanelInfo($chanelId) {
     $query = "
         SELECT 
             c.title, c.users, c.username, c.type, c.status, c.updated_at AS chanel_updated_at,
-            cs.unlocked, cs.access, cs.capcha, cs.antispam, cs.statistics, cs.updated_at AS settings_updated_at,
+            cs.unlocked, cs.access, cs.capcha, cs.antispam, cs.antiflood, cs.antilink, cs.antibot, cs.statistics, cs.updated_at AS settings_updated_at,
             GREATEST(c.updated_at, cs.updated_at) AS latest_updated_at
         FROM chanel c
         LEFT JOIN chanel_settings cs ON c.chanelId = cs.chanelId

@@ -31,6 +31,8 @@ use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
 use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
+use SergiX44\Nutgram\Telegram\Types\Chat\ChatPermissions;
+
 
 $filesystemAdapter = new FilesystemAdapter();
 $cacheo = new Psr16Cache($filesystemAdapter);
@@ -203,7 +205,7 @@ $bot->onMessage(function (Nutgram $bot) {
         $supportMenu->start($bot);
     } else {
         // Check if the message sender is a bot
-        if (!$isBot) {
+        if ($isBot == false) {
             // Check if the user is already in the system
             $checkUser = checkUser($bot->userId());
             if ($checkUser == 'no_such_user') {
@@ -244,19 +246,21 @@ $bot->onMessage(function (Nutgram $bot) {
                     }else {
                         if ($checkCapcha['status'] == 'pending') {
                             if ((time()-strtotime("3 MINUTE"))>$checkCapcha['created_at']) {
-                                $bot->restrictChatMember($chanelId, $bot->userId(), [
-                                    'permissions' => [
-                                        'can_send_messages' => false,
-                                        'can_send_media_messages' => false,
-                                        'can_send_polls' => false,
-                                        'can_send_other_messages' => false,
-                                        'can_add_web_page_previews' => false,
-                                        'can_change_info' => false,
-                                        'can_invite_users' => false,
-                                        'can_pin_messages' => false,
-                                    ],
-                                    'until_date' => time() + 30 * 60 // Текущий UNIX-времени + 10 минут
-                                ]);
+                                $permissions = new ChatPermissions(
+                                    can_send_messages: false,
+                                    can_send_audios: false,
+                                    can_send_documents: false,
+                                    can_send_photos: false,
+                                    can_send_videos: false,
+                                    can_send_video_notes: false,
+                                    can_send_polls: false,
+                                    can_send_other_messages: false,
+                                    can_add_web_page_previews: false,
+                                    can_change_info: false,
+                                    can_invite_users: false
+                                );
+
+                                $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 900);
                                 updateCapcha($bot->userId(), $chanelId, 'failed');
                             } else {
                                 try {
@@ -310,19 +314,21 @@ $bot->onMessage(function (Nutgram $bot) {
                                     createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
                                 } else {
                                     // Мут пользователя
-                                    $bot->restrictChatMember($chatId, $bot->userId(), [
-                                        'permissions' => [
-                                            'can_send_messages' => false,
-                                            'can_send_media_messages' => false,
-                                            'can_send_polls' => false,
-                                            'can_send_other_messages' => false,
-                                            'can_add_web_page_previews' => false,
-                                            'can_change_info' => false,
-                                            'can_invite_users' => false,
-                                            'can_pin_messages' => false,
-                                        ],
-                                        'until_date' => time() + 10 * 60 // Мут на 10 минут
-                                    ]);
+                                    $permissions = new ChatPermissions(
+                                        can_send_messages: false,
+                                        can_send_audios: false,
+                                        can_send_documents: false,
+                                        can_send_photos: false,
+                                        can_send_videos: false,
+                                        can_send_video_notes: false,
+                                        can_send_polls: false,
+                                        can_send_other_messages: false,
+                                        can_add_web_page_previews: false,
+                                        can_change_info: false,
+                                        can_invite_users: false
+                                    );
+
+                                    $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 600);
                                     createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
                                 }
                             }
@@ -331,6 +337,42 @@ $bot->onMessage(function (Nutgram $bot) {
                         // Обновление кэша предыдущих сообщений
                         $cache->set("prevPrevMsg_{$bot->userId()}", $prevMsg);
                         $cache->set("prevMsg_{$bot->userId()}", ['message' => $text, 'messageId' => $bot->messageId(), 'created_at' => time()]);
+                }
+                if ($settings['antiflood'] == 'on') {
+                    $prevMsg = getPrevMsg($bot->userId());
+                    $prevPrevMsg = getPrevMsg($bot->userId(), 2);
+                    if ($text == $prevPrevMsg['message']) {
+                        $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
+                        $bot->deleteMessage($chatId, $prevMsg['messageId']);
+                        $bot->deleteMessage($chatId, $bot->messageId());
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevPrevMsg['messageId']);
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevMsg['messageId']);
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                        $permissions = new ChatPermissions(
+                            can_send_messages: false,
+                            can_send_audios: false,
+                            can_send_documents: false,
+                            can_send_photos: false,
+                            can_send_videos: false,
+                            can_send_video_notes: false,
+                            can_send_polls: false,
+                            can_send_other_messages: false,
+                            can_add_web_page_previews: false,
+                            can_change_info: false,
+                            can_invite_users: false
+                        );
+
+                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 180);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за флуд", $bot->messageId() + 1);
+                        $username = getUsername($bot->userId());
+                        $bot->sendMessage($chatId, msg('flood_msg', $lang, ['{username}' => $username]));
+                    }
+                }
+                if ($settings['antilink'] == 'on') {
+
+                }
+                if ($settings['antibot'] == 'on') {
+
                 }
             }
         }

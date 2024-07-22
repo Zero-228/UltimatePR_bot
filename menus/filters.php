@@ -42,10 +42,21 @@ class FilterMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         $chanelId = $this->chanelId;
-        $this->clearButtons()->menuText('ChanelId = '.$this->chanelId)
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_botfilter', $lang), callback_data: $chanelId.'@WIP'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_link', $lang), callback_data: $chanelId.'@WIP'), InlineKeyboardButton::make(msg('btn_flood', $lang), callback_data: $chanelId.'@WIP'))
-            ->addButtonRow(InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: $chanelId.'@filterAntispam'))
+        $chanelInfo = getChanelInfo($chanelId);
+        $antispam = $chanelInfo['antispam'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $antiflood = $chanelInfo['antiflood'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $antilink = $chanelInfo['antilink'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $antibot = $chanelInfo['antibot'] == 'on' ? msg('stng_on', $lang) : msg('stng_off', $lang);
+        $variables = [
+            '{antispam}' => $antispam,
+            '{antiflood}' => $antiflood,
+            '{antilink}' => $antilink,
+            '{antibot}' => $antibot,
+        ];
+        $this->clearButtons()->menuText(msg('filter_menu', $lang, $variables))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_botfilter', $lang), callback_data: $chanelId.'@filterAntibot'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_link', $lang), callback_data: $chanelId.'@filterAntilink'), InlineKeyboardButton::make(msg('btn_flood', $lang), callback_data: $chanelId.'@filterAntiflood'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('btn_antispam', $lang), callback_data: $chanelId.'@WIP'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@back'))
             ->orNext('none')
             ->showMenu();
@@ -56,9 +67,8 @@ class FilterMenu extends InlineMenu
         $lang = lang($bot->userId());
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
-        $callback = $chanelId.'/'.$userRole.'@handleChanel';
         $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
     }
@@ -74,6 +84,54 @@ class FilterMenu extends InlineMenu
         $msg = msg('set_chanel_antispam', $lang).msg('stng_'.$antispam, $lang);
         $this->clearButtons()->menuText($msg)
             ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antispam/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antispam/on@updateChanelSetting'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function filterAntiflood(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@start';
+        $chanelInfo = getChanelInfo($chanelId);
+        $antiflood = $chanelInfo['antiflood'];
+        $msg = msg('set_chanel_antiflood', $lang).msg('stng_'.$antiflood, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antiflood/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antiflood/on@updateChanelSetting'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function filterAntilink(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@start';
+        $chanelInfo = getChanelInfo($chanelId);
+        $antilink = $chanelInfo['antilink'];
+        $msg = msg('set_chanel_antilink', $lang).msg('stng_'.$antilink, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antilink/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antilink/on@updateChanelSetting'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+            ->orNext('none')
+            ->showMenu();
+    }
+
+    protected function filterAntibot(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        $chanelId = $bot->callbackQuery()->data;
+        $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
+        $callback = $chanelId.'/'.$userRole.'@start';
+        $chanelInfo = getChanelInfo($chanelId);
+        $antibot = $chanelInfo['antibot'];
+        $msg = msg('set_chanel_antibot', $lang).msg('stng_'.$antibot, $lang);
+        $this->clearButtons()->menuText($msg)
+            ->addButtonRow(InlineKeyboardButton::make(msg('stng_off', $lang)."", callback_data: $chanelId.'/antibot/off@updateChanelSetting'),InlineKeyboardButton::make(msg('stng_on', $lang)."", callback_data: $chanelId.'/antibot/on@updateChanelSetting'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();

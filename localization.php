@@ -80,7 +80,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -90,6 +90,15 @@ $languages = array(
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
 		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
+		'set_chanel_antiflood' => "😷 Antiflood filter 😷\nMutes user after sending same message 3 times\n\nCurrent setting: ",
+		'set_chanel_antilink' => "🔗 Antilink filter 🔗\nMutes user after trying to send a link\n\nCurrent setting: ",
+		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
+		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
+		'flood_msg' => "❗️@{username}, don't flood please❗️",
+
+
+
+
 		/*
 		'' => "",
 		*/
@@ -159,7 +168,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -169,6 +178,11 @@ $languages = array(
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
 		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
+		'set_chanel_antiflood' => "😷 Antiflood filter 😷\nMutes user after sending same message 3 times\n\nCurrent setting: ",
+		'set_chanel_antilink' => "🔗 Antilink filter 🔗\nMutes user after trying to send a link\n\nCurrent setting: ",
+		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
+		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
+		'flood_msg' => "❗️@{username}, don't flood please❗️",
 	),
 
 	'uk' => array(
@@ -235,7 +249,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify access to \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🚯 Antispam: {antispam}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -245,6 +259,11 @@ $languages = array(
 		'user' => "User",
 		'setting_updated' => " updated. \n\nCurrently set to: ",
 		'spam_warn' => "❗️@{username}, please write slower \nor you'll be muted",
+		'set_chanel_antiflood' => "😷 Antiflood filter 😷\nMutes user after sending same message 3 times\n\nCurrent setting: ",
+		'set_chanel_antilink' => "🔗 Antilink filter 🔗\nMutes user after trying to send a link\n\nCurrent setting: ",
+		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
+		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
+		'flood_msg' => "❗️@{username}, don't flood please❗️",
 	),
 );
 
