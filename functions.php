@@ -439,6 +439,36 @@ function checkPreviousWarnings($userId, $chanelId, $timeWindowInSeconds) {
     return $result['count'];
 }
 
+function checkNumLog($chanelId, $userId, $type, $interval) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+    if (!$dbCon) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    // Используем строковую конкатенацию для интервала
+    $query = "SELECT * FROM chanel_log WHERE chanelId = ? AND entityId = ? AND context = ? AND created_at > DATE_SUB(NOW(), INTERVAL $interval)";
+
+    $stmt = $dbCon->prepare($query);
+    
+    if (!$stmt) {
+        die("Statement preparation failed: " . mysqli_error($dbCon));
+    }
+    
+    $stmt->bind_param("sss", $chanelId, $userId, $type);
+    
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $numRow = $result->num_rows;
+
+    $stmt->close();
+    mysqli_close($dbCon);
+
+    return $numRow;
+}
+
+
+
 function writeLogFile($string, $clear = false){
     $timeNow = TIME_NOW;
     $log_file_name = __DIR__."/temp/message.txt";

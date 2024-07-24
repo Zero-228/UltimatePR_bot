@@ -216,6 +216,8 @@ $bot->onMessage(function (Nutgram $bot) {
                 }
             }
 
+            $chatId = $bot->chatId();
+
             // Log messages if not from bot itself and not a direct message
             if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
                 if (checkChanel($bot->chatId())) {
@@ -363,13 +365,46 @@ $bot->onMessage(function (Nutgram $bot) {
                         );
 
                         $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 180);
-                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за флуд", $bot->messageId() + 1);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за флуд: ".$bot->userId(), $bot->messageId() + 1);
                         $username = getUsername($bot->userId());
                         $bot->sendMessage($chatId, msg('flood_msg', $lang, ['{username}' => $username]));
                     }
                 }
                 if ($settings['antilink'] == 'on') {
+                    $username = getUsername($bot->userId());
+                    $counter = 0;
+                    if (str_contains($text, "//")) {$counter++;}
+                    if (str_contains($text, "www.")) {$counter++;}
+                    if (str_contains($text, "http:")) { $counter++;}
+                    if (str_contains($text, "https:")) {$counter++;}
+                    if ($counter>0) {
+                        try {
+                            $bot->deleteMessage($chatId, $bot->messageId());
+                            createChanelLog(TIME_NOW, 'user', $bot->userId(), $chatId, 'link', "Ссылка в чат", $bot->messageId() + 1);
+                            superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                            $bot->sendMessage(chat_id: $chatId, text: msg('link_msg', $lang, ['{username}' => $username]));
+                        } catch (Exception $e) {
+                            error_log($e);
+                        }
+                    }
+                    if (checkNumLog($chatId, $bot->userId(), 'link', "1 HOUR")>0) {
+                        $permissions = new ChatPermissions(
+                            can_send_messages: false,
+                            can_send_audios: false,
+                            can_send_documents: false,
+                            can_send_photos: false,
+                            can_send_videos: false,
+                            can_send_video_notes: false,
+                            can_send_polls: false,
+                            can_send_other_messages: false,
+                            can_add_web_page_previews: false,
+                            can_change_info: false,
+                            can_invite_users: false
+                        );
 
+                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 300);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за ссылку: ".$bot->userId(), $bot->messageId() + 1);
+                    }
                 }
                 if ($settings['antibot'] == 'on') {
 

@@ -95,6 +95,7 @@ $languages = array(
 		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
+		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
 
 
 
@@ -183,6 +184,7 @@ $languages = array(
 		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
+		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
 	),
 
 	'uk' => array(
@@ -264,6 +266,7 @@ $languages = array(
 		'set_chanel_antibot' => "🤖 Antibot filter 🤖\nMutes user after tryign to add a bot in a group\n\nCurrent setting: ",
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
+		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
 	),
 );
 
