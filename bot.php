@@ -196,7 +196,8 @@ $bot->onMessage(function (Nutgram $bot) {
         $profileMenu = new ProfileMenu($bot);
         $profileMenu->start($bot);
     } elseif(str_contains($text, msg('menu_promote', $lang))) {
-        $bot->sendMessage(msg('WIP', $lang));
+        $paymentMenu = new PaymentMenu($bot);
+        $paymentMenu->start($bot);
     } elseif(str_contains($text, msg('change_language', $lang))) {
         $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
         $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);

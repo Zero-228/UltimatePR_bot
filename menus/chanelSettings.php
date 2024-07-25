@@ -69,7 +69,7 @@ class ChanelSettings extends InlineMenu
 
     public function handleChanel(Nutgram $bot, $chanelId = null, $userRole = null)
     {
-        if ($chanelId == null) {
+        if ($chanelId == null || str_contains($bot->callbackQuery()->data, '-100')) {
             list($chanelId, $userRole) = explode("/", $bot->callbackQuery()->data);
         }
         $lang = lang($bot->userId());
@@ -223,10 +223,30 @@ class ChanelSettings extends InlineMenu
         $chanelId = $bot->callbackQuery()->data;
         $userRole = checkUserInChanelRole($bot->userId(), $chanelId);
         $callback = $chanelId.'/'.$userRole.'@handleChanel';
-        $this->clearButtons()->menuText(msg('WIP', lang($bot->userId())))
+        $chanelInfo = getChanelInfo($chanelId);
+        $unlocked = $chanelInfo['unlocked'];
+        $msg = msg('set_chanel_unlocked', $lang).msg('stng_'.$unlocked, $lang);
+        $unlock_basic = msg('unlock_basic', $lang);
+        if ($unlocked == 'no') {$unlock_basic .= "✅";}
+        $unlock_vip = msg('unlock_vip', $lang);
+        if ($unlocked == 'yes') {$unlock_vip .= "✅";}
+        $unlock_prem = msg('unlock_prem', $lang);
+        if ($unlocked == 'payed') {$unlock_prem .= "✅";}
+        $this->clearButtons()->menuText($msg, ['parse_mode'=>"HTML"])
+            ->addButtonRow(InlineKeyboardButton::make($unlock_basic, callback_data: $chanelId.'/unlocked/no@updateChanelSetting'))
+            ->addButtonRow(InlineKeyboardButton::make($unlock_vip, callback_data: $chanelId.'/unlocked/yes@updateChanelSetting'))
+            ->addButtonRow(InlineKeyboardButton::make($unlock_prem, callback_data: $chanelId.'@pay4Chanel'))
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $callback),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
+    }
+
+    protected function pay4Chanel(Nutgram $bot)
+    {
+        $chanelId = $bot->callbackQuery()->data;
+        $this->end();
+        $paymentMenu = new PaymentMenu($bot);
+        $paymentMenu->paymentMethod($bot, $chanelId);
     }
 
     protected function newTimedMessage(Nutgram $bot)
@@ -257,8 +277,16 @@ class ChanelSettings extends InlineMenu
         } else {
             $status = msg("stng_".$chanelInfo[$param], $lang);
         }
-        $msg = msg('set_chanel_'.$param, $lang).$status;
-        $this->menuText($msg)->orNext('none')->showMenu();
+        if ($param != 'unlocked') {
+            $msg = msg('set_chanel_'.$param, $lang).$status;
+            $this->menuText($msg)->orNext('none')->showMenu();
+        } else {
+            $this->clearButtons()->menuText(msg('set_chanel_unlock', $lang))
+                ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $chanelId."@chanelUnlock"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+                ->orNext('none')
+                ->showMenu();
+        }
+        
 
     }
 
@@ -286,7 +314,8 @@ class ChanelSettings extends InlineMenu
             $profileMenu->start($bot);
         } elseif(str_contains($text, msg('menu_promote', $lang))) {
             $this->end();
-            $bot->sendMessage(msg('WIP', $lang));
+            $paymentMenu = new PaymentMenu($bot);
+            $paymentMenu->start($bot);
         } elseif(str_contains($text, msg('change_language', $lang))) {
             $this->end();
             $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));

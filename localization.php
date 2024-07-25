@@ -96,6 +96,11 @@ $languages = array(
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
 		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
+		'set_chanel_unlocked' => "🔓 Here you can unlock additional 🔓\nfeatures for your group.\n\n<b>Basic</b>\nSimplest version that allows you to use \nautosubscription and 1 timed message\n\n<b>VIP</b>\nAllowing infrequent advertisingin your\ngroup you gane access to different filter\nsettings and capcha validation feature.\nTimed messages limit increases to 3\n\n",
+		'unlock_basic' => "Basic ",
+		'unlock_vip' => "VIP ",
+		'unlock_prem' => "Premium ",
+		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
 
 
 
@@ -185,6 +190,11 @@ $languages = array(
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
 		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
+		'set_chanel_unlocked' => "🔓 Here you can unlock additional 🔓\nfeatures for your group.\n\n<b>Basic</b>\nSimplest version that allows you to use \nautosubscription and 1 timed message\n\n<b>VIP</b>\nAllowing infrequent advertisingin your\ngroup you gane access to different filter\nsettings and capcha validation feature.\nTimed messages limit increases to 3\n\n",
+		'unlock_basic' => "Basic ",
+		'unlock_vip' => "VIP ",
+		'unlock_prem' => "Premium ",
+		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
 	),
 
 	'uk' => array(
@@ -267,6 +277,11 @@ $languages = array(
 		'filter_menu' => "Here you can adjust some \nadditional filters for your \ngroup.\n======================\n\n 🚯   Antispam: {antispam}\n 😷   Antiflood:  {antiflood}\n 🔗   Antilink:     {antilink}\n 🤖   Antibot:     {antibot}\n\n======================",
 		'flood_msg' => "❗️@{username}, don't flood please❗️",
 		'link_msg' => "❗️@{username}, very likely the message you sent contains a link. Please don't send them. ❗️",
+		'set_chanel_unlocked' => "🔓 Here you can unlock additional 🔓\nfeatures for your group.\n\n<b>Basic</b>\nSimplest version that allows you to use \nautosubscription and 1 timed message\n\n<b>VIP</b>\nAllowing infrequent advertisingin your\ngroup you gane access to different filter\nsettings and capcha validation feature.\nTimed messages limit increases to 3\n\n",
+		'unlock_basic' => "Basic ",
+		'unlock_vip' => "VIP ",
+		'unlock_prem' => "Premium ",
+		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
 	),
 );
 
