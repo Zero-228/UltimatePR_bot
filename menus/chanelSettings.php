@@ -79,6 +79,8 @@ class ChanelSettings extends InlineMenu
         superUpdater('chanel', 'users', $memberCount, 'chanelId', $chanelId);
         $chanelInfo = getChanelInfo($chanelId);
         $title = $chanelInfo['title'];
+        $newChanelUsers = countNewChanelUsers($chanelId, $bot->userId());
+        $leftChanelUsers = countLeftChanelUsers($chanelId, $bot->userId());
         if(strlen($title) > 35){$title = substr($title, 0, 32);$title .= "..."; }
         
         $access = $chanelInfo['access'] == 'creator' ? msg('creator', $lang) : msg('admin', $lang);
@@ -102,6 +104,8 @@ class ChanelSettings extends InlineMenu
         }
         $variables = [
             '{users}' => $chanelInfo['users'],
+            '{users_new}' => $newChanelUsers,
+            '{users_left}' => $leftChanelUsers,
             '{access}' => $access,
             '{capcha}' => $capcha,
             '{filters}' => $filters,

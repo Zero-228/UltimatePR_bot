@@ -44,7 +44,6 @@ class PaymentMenu extends InlineMenu
 
     public function paymentMethod(Nutgram $bot, $chanelId = null)
     {
-        error_log("Ифышс: ".$chanelId);
         $lang = lang($bot->userId());
         $amount = $bot->callbackQuery()->data;
         $callback = $amount."@handlePayment";

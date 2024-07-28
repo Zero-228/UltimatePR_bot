@@ -131,6 +131,13 @@ function createLog($timestamp, $entity, $entityId, $context, $message) {
 
 function createChanelLog($timestamp, $entity, $entityId, $chanelId, $context, $message, $messageId) {
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timestamp = mysqli_real_escape_string($dbCon, $timestamp);
+    $entity = mysqli_real_escape_string($dbCon, $entity);
+    $entityId = mysqli_real_escape_string($dbCon, $entityId);
+    $chanelId = mysqli_real_escape_string($dbCon, $chanelId);
+    $context = mysqli_real_escape_string($dbCon, $context);
+    $message = mysqli_real_escape_string($dbCon, $message);
+    $messageId = mysqli_real_escape_string($dbCon, $messageId);
     $createLog = mysqli_query($dbCon, "INSERT INTO chanel_log (created_at, updated_at, entity, entityId, chanelId, context, message, status, messageId) VALUES ('$timestamp', '$timestamp', '$entity','$entityId', '$chanelId','$context','$message', 'active', '$messageId')");
     if (!$createLog) {
         error_log("error with creating channel log in DB");
@@ -254,7 +261,7 @@ function getChanelInfo($chanelId) {
     $query = "
         SELECT 
             c.title, c.users, c.username, c.type, c.status, c.updated_at AS chanel_updated_at,
-            cs.unlocked, cs.access, cs.capcha, cs.antispam, cs.antiflood, cs.antilink, cs.antibot, cs.statistics, cs.updated_at AS settings_updated_at,
+            cs.subscription, cs.unlocked, cs.access, cs.capcha, cs.antispam, cs.antiflood, cs.antilink, cs.antibot, cs.statistics, cs.updated_at AS settings_updated_at,
             GREATEST(c.updated_at, cs.updated_at) AS latest_updated_at
         FROM chanel c
         LEFT JOIN chanel_settings cs ON c.chanelId = cs.chanelId
@@ -445,6 +452,55 @@ function checkNumLog($chanelId, $userId, $type, $interval){
     $numRow = mysqli_num_rows($query);
     mysqli_close($dbCon);
     return $numRow;
+}
+
+function countNewChanelUsers($chanelId, $userId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM users_in_chanels WHERE chanelId='$chanelId' AND userId='$userId' AND created_at > DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    $numRow = mysqli_num_rows($query);
+    mysqli_close($dbCon);
+    return $numRow;
+}
+
+function countLeftChanelUsers($chanelId, $userId){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM users_in_chanels WHERE chanelId='$chanelId' AND userId='$userId' AND status='left' AND updated_at > DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    $numRow = mysqli_num_rows($query);
+    mysqli_close($dbCon);
+    return $numRow;
+}
+
+function getChanelFromUsername($chanelUsername){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM chanel WHERE username='$chanelUsername' AND status='active'");
+    $numRow = mysqli_num_rows($query);
+    if ($numRow == 1) {
+        $groupInfo = mysqli_fetch_assoc($query);
+        return $groupInfo;
+    } else {
+        return false;
+    }
+    mysqli_close($dbCon);
+}
+
+function checkChanelLog($userId, $type){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM chanel_log WHERE entityId='$userId' AND status='active' AND context='$type' ORDER BY logId DESC LIMIT 1");
+    $numRow = mysqli_num_rows($query);
+    if ($numRow == 1) {
+        $groupInfo = mysqli_fetch_assoc($query);
+        return $groupInfo;
+    } else {
+        return false;
+    }
+    mysqli_close($dbCon);
+}
+
+function addSubscription($chanelFrom, $chanelTo, $timer){
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $timeNow = TIME_NOW;
+    mysqli_query($dbCon, "INSERT INTO subscription (chanelFrom, status, chanelTo, timer, updated_at, created_at) VALUES ('$chanelFrom', 'active', '$chanelTo', '$timer', '$timeNow','$timeNow')");
+    mysqli_close($dbCon);
 }
 
 function writeLogFile($string, $clear = false){

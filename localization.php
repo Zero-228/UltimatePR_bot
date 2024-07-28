@@ -80,7 +80,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}   (➕{users_new} / {users_left}➖)\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -101,6 +101,9 @@ $languages = array(
 		'unlock_vip' => "VIP ",
 		'unlock_prem' => "Premium ",
 		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
+		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
+		'no_permissions' => "❗️You don't have permissions to do that",
+		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 
 
 
@@ -174,7 +177,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify accessto \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}   (➕{users_new} / {users_left}➖)\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -195,6 +198,9 @@ $languages = array(
 		'unlock_vip' => "VIP ",
 		'unlock_prem' => "Premium ",
 		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
+		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
+		'no_permissions' => "❗️You don't have permissions to do that",
+		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 	),
 
 	'uk' => array(
@@ -261,7 +267,7 @@ $languages = array(
 		'set_chanel_access' => "⚙️ Here you can modify access to \nchanel's settings via this bot. ⚙️\n\nCurrent setting: ",
 		'creator' => "Creator",
 		'admin' => "Admin",
-		'chanel_settings' => "🤷🏻‍♂️ Users: {users}\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
+		'chanel_settings' => "🤷🏻‍♂️ Users: {users}   (➕{users_new} / {users_left}➖)\n🔓 Access: {access}\n☑️ Capcha: {capcha}\n🧮 Filters: {filters}\n\n__________________________\nLast update: \n{last_update}",
 		'stng_on' => "on 🟢",
 		'stng_off' => "off 🔴",
 		'capcha_msg' => "@{username}, press the button below\nto pass the caphca ❗️",
@@ -282,6 +288,9 @@ $languages = array(
 		'unlock_vip' => "VIP ",
 		'unlock_prem' => "Premium ",
 		'set_chanel_unlock' => "Channel level upgraded!\n\nThank you for your collaboration!",
+		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
+		'no_permissions' => "❗️You don't have permissions to do that",
+		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 	),
 );
 

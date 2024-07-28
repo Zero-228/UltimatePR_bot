@@ -218,6 +218,7 @@ $bot->onMessage(function (Nutgram $bot) {
             }
 
             $chatId = $bot->chatId();
+            $role = checkRole($bot->userId());
 
             // Log messages if not from bot itself and not a direct message
             if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
@@ -409,6 +410,52 @@ $bot->onMessage(function (Nutgram $bot) {
                 }
                 if ($settings['antibot'] == 'on') {
 
+                }
+                if (str_contains($text, "@setup")) {
+                    if ($role == 'admin' || $role == 'creator' || $bot->userId() == 1087968824) {
+                        list($command, $groupUsername, $timer = '') = explode(' ', $text);
+                        $bot->deleteMessage($chatId, $bot->messageId());
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                        if (str_contains($groupUsername, '@')) {
+                            $groupUsername = substr($groupUsername, 1);
+                        }
+                        $chanelInfo = getChanelFromUsername($groupUsername);
+                        if ($chanelInfo) {
+                            // creating subscription
+                            addSubscription($chatId, $chanelInfo['chanelId'], $timer);
+                            superUpdater('chanel_settings', 'subscription', 'on', 'chanelId', $chatId);
+                            $msg = msg('subscription_added', $lang, ['{chanelUsername}'=>$chanelInfo['title']]);
+                            $bot->sendMessage(chat_id: $chatId, text: $msg);
+                        } else {
+                            $bot->sendMessage(chat_id: $chatId, text: msg('no_chanel_found', $lang));
+                        }
+                    } else {
+                        if (checkChanelLog($bot->userId(), 'perm')) {
+                            $bot->deleteMessage($chatId, $bot->messageId());
+                            superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                            $permissions = new ChatPermissions(
+                                can_send_messages: false,
+                                can_send_audios: false,
+                                can_send_documents: false,
+                                can_send_photos: false,
+                                can_send_videos: false,
+                                can_send_video_notes: false,
+                                can_send_polls: false,
+                                can_send_other_messages: false,
+                                can_add_web_page_previews: false,
+                                can_change_info: false,
+                                can_invite_users: false
+                            );
+
+                            $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 600);
+                            createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Lack of permissioons: ".$bot->userId(), $bot->messageId() + 1);
+                        } else {
+                            $bot->deleteMessage($chatId, $bot->messageId());
+                            superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                            $bot->sendMessage(chat_id: $chatId, text: msg('no_permissions', $lang));
+                            createChanelLog(TIME_NOW, 'user', $bot->userId(), $chatId, 'perm', $text, $bot->messageId() + 1);
+                        }                    
+                    }
                 }
             }
         }

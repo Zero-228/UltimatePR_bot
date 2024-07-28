@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: 127.0.0.1
--- Время создания: Июл 15 2024 г., 15:40
+-- Время создания: Июл 28 2024 г., 14:42
 -- Версия сервера: 10.4.32-MariaDB
 -- Версия PHP: 8.2.12
 
@@ -79,10 +79,14 @@ CREATE TABLE `chanel_log` (
 
 CREATE TABLE `chanel_settings` (
   `chanelId` bigint(25) NOT NULL,
+  `subscription` varchar(3) NOT NULL COMMENT '(on/off)',
   `unlocked` varchar(6) NOT NULL DEFAULT 'no' COMMENT '(no/yes/payed)',
   `access` varchar(7) NOT NULL DEFAULT 'admin' COMMENT '(creator/admin)',
   `capcha` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `antispam` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
+  `antiflood` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
+  `antibot` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
+  `antilink` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',
   `statistics` varchar(8) NOT NULL DEFAULT 'standart' COMMENT '(standart/payed)',
   `timedMessages` int(11) NOT NULL DEFAULT 3 COMMENT '(quantity of avaible messages)',
   `updated_at` datetime NOT NULL,
@@ -102,6 +106,22 @@ CREATE TABLE `log` (
   `entityId` bigint(20) NOT NULL,
   `context` varchar(15) NOT NULL COMMENT '(callback/comand/..)',
   `message` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `subscription`
+--
+
+CREATE TABLE `subscription` (
+  `id` int(11) NOT NULL,
+  `chanelFrom` bigint(25) NOT NULL,
+  `status` varchar(12) NOT NULL COMMENT '(active/done/deleted..)',
+  `chanelTo` bigint(25) NOT NULL,
+  `timer` varchar(255) DEFAULT NULL,
+  `updated_at` datetime NOT NULL,
+  `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -210,6 +230,14 @@ ALTER TABLE `log`
   ADD KEY `entityId` (`entityId`);
 
 --
+-- Индексы таблицы `subscription`
+--
+ALTER TABLE `subscription`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `subs_ibfk_1` (`chanelFrom`),
+  ADD KEY `subs_ibfk_2` (`chanelTo`);
+
+--
 -- Индексы таблицы `support`
 --
 ALTER TABLE `support`
@@ -254,6 +282,12 @@ ALTER TABLE `log`
   MODIFY `logId` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT для таблицы `subscription`
+--
+ALTER TABLE `subscription`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT для таблицы `support`
 --
 ALTER TABLE `support`
@@ -287,6 +321,13 @@ ALTER TABLE `capcha`
 --
 ALTER TABLE `chanel_settings`
   ADD CONSTRAINT `settings_ibfk_1` FOREIGN KEY (`chanelId`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `subscription`
+--
+ALTER TABLE `subscription`
+  ADD CONSTRAINT `subs_ibfk_1` FOREIGN KEY (`chanelFrom`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `subs_ibfk_2` FOREIGN KEY (`chanelTo`) REFERENCES `chanel` (`chanelId`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `support`
