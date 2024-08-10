@@ -413,7 +413,7 @@ $bot->onMessage(function (Nutgram $bot) {
                 }
                 if (str_contains($text, "@setup")) {
                     if ($role == 'admin' || $role == 'creator' || $bot->userId() == 1087968824) {
-                        list($command, $groupUsername, $timer = '') = explode(' ', $text);
+                        list($command, $groupUsername, $timer) = explode(' ', $text);
                         $bot->deleteMessage($chatId, $bot->messageId());
                         superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
                         if (str_contains($groupUsername, '@')) {
