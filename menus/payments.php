@@ -42,6 +42,14 @@ class PaymentMenu extends InlineMenu
             ->showMenu();
     }
 
+    # TODO Add paymentHandler
+    ## 3 invoice options:
+    ### 1. One-time post to groups
+    ### 2. Repeated post to groups
+    ### 3. One-time post to bot users
+    ## 1 subscription options:
+    ### access to all features for 75c/week
+
     public function paymentMethod(Nutgram $bot, $chanelId = null)
     {
         $lang = lang($bot->userId());
@@ -70,6 +78,41 @@ class PaymentMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         list($paymentType, $amount) = explode("/", $bot->callbackQuery()->data);
+        $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+        switch ($amount) {
+            case 2:
+                $payload = "1 option";
+                $description = "Paid " . $payload;
+                break;
+            case 3:
+                $payload = "2 option";
+                $description = "Paid " . $payload;
+                break;
+            case 5:
+                $payload = "3 option";
+                $description = "Paid " . $payload;
+                break;
+        }
+        $title = "Payment for " . $payload;
+        $currency = "USD";
+        $prices = [
+            [
+                'label' => $title,
+                'amount' => $amount * 100
+            ]
+        ];
+        $bot->sendInvoice(
+            title: $title,
+            description: $description,
+            payload: $payload,
+            provider_token: $payment_token_provider,
+            currency: $currency,
+            prices: $prices,
+            need_name: True,
+            need_phone_number: True,
+            need_email: True,
+            need_shipping_address: false
+        );
         $this->clearButtons()->menuText("Amount: $amount!")
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $amount."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->showMenu();
@@ -79,10 +122,47 @@ class PaymentMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         list($paymentType, $chanelId) = explode("/", $bot->callbackQuery()->data);
+        
         $this->clearButtons()->menuText("Channel ID: $chanelId!")
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $chanelId."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->showMenu();
     }
+    /*
+    $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+    switch ($amount) {
+        case 200:
+            $payload = "2 weeks";
+            $description = msg("description_option") . $payload;
+            break;
+        case 800:
+            $payload = "6 months";
+            $description = msg("description_option") . $payload;
+            break;
+        case 1200:
+            $payload = "12 months";
+            $description = msg("description_option") . $payload;
+            break;
+    }
+    $title = "Access to the private channel for " . $payload;
+    $currency = "USD";
+    $prices = [
+        [
+            'label' => $title,
+            'amount' => $amount * 100
+        ]
+    ];
+    $bot->sendInvoice(
+        title: $title,
+        description: $description,
+        payload: $payload,
+        provider_token: $payment_token_provider,
+        currency: $currency,
+        prices: $prices,
+        need_name: True,
+        need_phone_number: True,
+        need_email: True,
+        need_shipping_address: false
+    );*/
 
     public function cancel(Nutgram $bot)
     {
