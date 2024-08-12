@@ -462,6 +462,32 @@ $bot->onMessage(function (Nutgram $bot) {
     }
 });
 
+$bot->onPreCheckoutQuery(function (Nutgram $bot) {
+    $pre_checkout_query = $bot->update()->pre_checkout_query;
+    $invoice_payload = $pre_checkout_query->invoice_payload;
+    if ($invoice_payload) {
+        $bot->answerPreCheckoutQuery(
+            ok: true,
+            pre_checkout_query_id: $pre_checkout_query->id
+        );
+    } else {
+        // updatePayment($pre_checkout_query->from->id, 'canceled', TIME_NOW);
+        $bot->answerPreCheckoutQuery(
+            ok: false,
+            error_message: "empty payload" 
+        );
+    }
+});
+
+$bot->onSuccessfulPayment(function (Nutgram $bot) {
+    $message = $bot->update()->message;
+    $order_info = $message->successful_payment->order_info;
+    // fillUser($message->from->id, $order_info->email, $order_info->phone_number);
+    // updatePayment($message->from->id, 'success', TIME_NOW);
+    $bot->sendMessage(text: "Payment has been completed successfully");
+});
+
+
 $bot->run();
 
 ?>
