@@ -78,18 +78,20 @@ class PaymentMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         list($paymentType, $amount) = explode("/", $bot->callbackQuery()->data);
+        createPayment($bot->userId(), $amount, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
         $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
         switch ($amount) {
-            case 2:
-                $payload = "1 option";
-                $description = "Paid " . $payload;
-                break;
             case 3:
-                $payload = "2 option";
+                $payload = $paymentId;
                 $description = "Paid " . $payload;
                 break;
             case 5:
-                $payload = "3 option";
+                $payload = $paymentId;
+                $description = "Paid " . $payload;
+                break;
+            case 8:
+                $payload = $paymentId;
                 $description = "Paid " . $payload;
                 break;
         }
@@ -113,9 +115,7 @@ class PaymentMenu extends InlineMenu
             need_email: True,
             need_shipping_address: false
         );
-        $this->clearButtons()->menuText("Amount: $amount!")
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $amount."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->showMenu();
+        $this->end();
     }
 
     public function handleSubscription(Nutgram $bot)

@@ -515,4 +515,19 @@ function writeLogFile($string, $clear = false){
         file_put_contents($log_file_name, $timeNow." ".print_r($string, true)."\r\n", FILE_APPEND);
     }
 }
+
+function createPayment($userId, $amount, $description) {
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "INSERT INTO payment (userId, status, amount, description, updated_at, created_at) VALUES ('$userId', 'pending', '$amount', '$description', '$timeNow','$timeNow')");
+    mysqli_close($dbCon);
+}
+
+function getLastPendingPayment($userId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT paymentId FROM payment WHERE userId='$userId' AND status='pending' ORDER BY paymentId DESC LIMIT 1");
+    mysqli_close($dbCon);
+    $result = mysqli_fetch_assoc($query);    
+    return $result['paymentId'];
+}
 ?>
