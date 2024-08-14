@@ -98,9 +98,9 @@ class PaymentMenu extends InlineMenu
                 'amount' => $amount * 100
             ]
         ];
-        $payload = $paymentId;
         createPayment($bot->userId(), $amount, $description);
         $paymentId = getLastPendingPayment($bot->userId());
+        $payload = $paymentId;
         $bot->sendInvoice(
             title: $title,
             description: $description,
