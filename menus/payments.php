@@ -78,24 +78,19 @@ class PaymentMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         list($paymentType, $amount) = explode("/", $bot->callbackQuery()->data);
-        createPayment($bot->userId(), $amount, $description);
-        $paymentId = getLastPendingPayment($bot->userId());
         $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
         switch ($amount) {
             case 3:
-                $payload = $paymentId;
-                $description = "Paid " . $payload;
+                $description = "Opt 1";
                 break;
             case 5:
-                $payload = $paymentId;
-                $description = "Paid " . $payload;
+                $description = "Opt 2";
                 break;
             case 8:
-                $payload = $paymentId;
-                $description = "Paid " . $payload;
+                $description = "Opt 3";
                 break;
         }
-        $title = "Payment for " . $payload;
+        $title = "Payment for " . $description;
         $currency = "USD";
         $prices = [
             [
@@ -103,6 +98,9 @@ class PaymentMenu extends InlineMenu
                 'amount' => $amount * 100
             ]
         ];
+        $payload = $paymentId;
+        createPayment($bot->userId(), $amount, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
         $bot->sendInvoice(
             title: $title,
             description: $description,
