@@ -530,4 +530,11 @@ function getLastPendingPayment($userId) {
     $result = mysqli_fetch_assoc($query);    
     return $result['paymentId'];
 }
+
+function updateUser($updateParam, $updateValue, $whereParam, $whereValue) {
+    $timeNow = TIME_NOW;
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    mysqli_query($dbCon, "UPDATE user SET $updateParam='$updateValue' WHERE $whereParam='$whereValue'");
+    mysqli_close($dbCon);
+}
 ?>
