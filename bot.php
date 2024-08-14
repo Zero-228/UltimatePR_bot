@@ -484,7 +484,6 @@ $bot->onSuccessfulPayment(function (Nutgram $bot) {
     $message = $bot->update()->message;
     $order_info = $message->successful_payment->order_info;
     $paymentId = $message->successful_payment->invoice_payload;
-    error_log($order_info);
     superUpdater('user', 'phone', $order_info->phone_number, 'userId', $bot->userId());
     superUpdater('user', 'email', $order_info->email, 'userId', $bot->userId());
     superUpdater('payment', 'status', 'paid', 'paymentId', $paymentId);
