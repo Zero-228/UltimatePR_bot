@@ -104,7 +104,7 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
-		'donate' => "Donate",
+		'donate' => "Donate 💸",
 
 
 
@@ -201,7 +201,7 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
-		'donate' => "Пожертвовать",
+		'donate' => "Пожертвовать 💸",
 	),
 
 	'uk' => array(
@@ -292,7 +292,7 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
-		'donate' => "Задонатити",
+		'donate' => "Задонатити 💸",
 	),
 );
 

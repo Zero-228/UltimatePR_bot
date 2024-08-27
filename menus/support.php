@@ -90,7 +90,8 @@ class SupportMenu extends InlineMenu
         
         $update = $bot->update();
         $amount = isset($update->message) ? $update->message->text : "";
-
+        $msg = msg('contact_support_msg', $lang);
+        
         if ($amount != "" && $amount > 0) {
             $this->end();
             $paymentData = $amount + ' donation';
