@@ -84,19 +84,22 @@ class SupportMenu extends InlineMenu
         $this->end();
     }
 
-    public function donate(Nutgram $bot)
+    protected function donate(Nutgram $bot)
     {
         $lang = lang($bot->userId());
         
         $update = $bot->update();
         $amount = isset($update->message) ? $update->message->text : "";
-        $msg = msg('contact_support_msg', $lang);
-        
+        $msg = msg('donate_menu', $lang);
+        $this->clearButtons()->menuText($msg);
         if ($amount != "" && $amount > 0) {
-            $this->end();
-            $paymentData = $amount + ' donation';
-            $paymentMenu = new PaymentMenu($bot);
-            $paymentMenu->paymentMethod($bot, $paymentData);
+            $msg .= msg('donate_confirm', $lang) . $amount;
+            try {
+                $bot->deleteMessage($bot->userId(), $bot->messageId());
+            } catch (Exception $e) {
+                error_log($e);
+            }
+            $this->addButtonRow(InlineKeyboardButton::make(msg('donate', $lang), callback_data: $amount.'@payDonate'));
         }
 
         $this->clearButtons()->menuText($msg);
@@ -104,6 +107,13 @@ class SupportMenu extends InlineMenu
         ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
         ->orNext('donate')
         ->showMenu();
+    }
+
+    protected function payDonate($amount) {
+        this->end();
+        $paymentData = $amount + ' donation';
+        $paymentMenu = new PaymentMenu($bot);
+        $paymentMenu->paymentMethod($bot, $paymentData);
     }
 
     protected function none(Nutgram $bot)
