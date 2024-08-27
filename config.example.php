@@ -23,6 +23,8 @@ define("BOT_USERNAME", "");
 define("BOT_ID", "");
 define("ADMIN_ID", "");
 
+define("SUBSCRIPTION_PRICE", "0.75");
+
 define("DB_HOST", "");
 define("DB_USER", "");
 define("DB_PASS", "");

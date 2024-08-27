@@ -119,48 +119,34 @@ class PaymentMenu extends InlineMenu
     public function handleSubscription(Nutgram $bot)
     {
         $lang = lang($bot->userId());
-        list($paymentType, $chanelId) = explode("/", $bot->callbackQuery()->data);
-        
-        $this->clearButtons()->menuText("Channel ID: $chanelId!")
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $chanelId."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->showMenu();
+        list($paymentType, $chanelId) = explode("/", $bot->callbackQuery()->data);   
+        $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+        $description = "1 week subscription";
+        $title = "Subscription to access pro features in group";
+        $currency = "USD";
+        $prices = [
+            [
+                'label' => $title,
+                'amount' => SUBSRIPTION_PRICE * 100
+            ]
+        ];
+        createPayment($bot->userId(), SUBSRIPTION_PRICE, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
+        $payload = $paymentId;
+        $bot->sendInvoice(
+            title: $title,
+            description: $description,
+            payload: $payload,
+            provider_token: $payment_token_provider,
+            currency: $currency,
+            prices: $prices,
+            need_name: True,
+            need_phone_number: True,
+            need_email: True,
+            need_shipping_address: false
+        );
+        $this->end();
     }
-    /*
-    $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
-    switch ($amount) {
-        case 200:
-            $payload = "2 weeks";
-            $description = msg("description_option") . $payload;
-            break;
-        case 800:
-            $payload = "6 months";
-            $description = msg("description_option") . $payload;
-            break;
-        case 1200:
-            $payload = "12 months";
-            $description = msg("description_option") . $payload;
-            break;
-    }
-    $title = "Access to the private channel for " . $payload;
-    $currency = "USD";
-    $prices = [
-        [
-            'label' => $title,
-            'amount' => $amount * 100
-        ]
-    ];
-    $bot->sendInvoice(
-        title: $title,
-        description: $description,
-        payload: $payload,
-        provider_token: $payment_token_provider,
-        currency: $currency,
-        prices: $prices,
-        need_name: True,
-        need_phone_number: True,
-        need_email: True,
-        need_shipping_address: false
-    );*/
 
     public function cancel(Nutgram $bot)
     {
