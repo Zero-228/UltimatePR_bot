@@ -50,21 +50,33 @@ class PaymentMenu extends InlineMenu
     ## 1 subscription options:
     ### access to all features for 75c/week
 
-    public function paymentMethod(Nutgram $bot, $chanelId = null)
+    public function paymentMethod(Nutgram $bot, $paymentData = null)
     {
-        $lang = lang($bot->userId());
         $amount = $bot->callbackQuery()->data;
-        $callback = $amount."@handlePayment";
-        if ($chanelId != null && $chanelId < 0) {
-            error_log("chanelId: ".$chanelId);
-            $callback = $chanelId."@handleSubscription";
-        } else {
-            $chanelId = 0;
+        $lang = lang($bot->userId());
+        if ($paymentData == null) {
+            error_log("chanelId: ".$paymentData);
+            $callback = $amount."@handlePayment";    
+            if(str_contains($amount, '-100')){
+                error_log("chanelId: ".$amount);
+                $callback = $amount."@handleSubscription";    
+            }
         }
-        if (str_contains($amount, '-100')) {
-            $chanelId = $amount;
-            error_log("chanelId: ".$chanelId);
-            $callback = $chanelId."@handleSubscription";
+        else {
+            if ($paymentData < 0) {
+                error_log("chanelId: ".$paymentData);
+                $callback = $paymentData."@handleSubscription";
+            }
+            else if (str_contains($paymentData, "donation")) {
+                list($amount,$type) = explode(" ", $paymentData);
+                error_log($type.": ".$paymentData);
+                $callback = $amount."@handleDonation";                    
+            }
+            else {
+                error_log("something strange: ".$paymentData);
+                this->end();
+                $bot->sendMessage('WTF are you?');
+            }
         }
         $this->clearButtons()->menuText('Select the payment method:')
             ->addButtonRow(InlineKeyboardButton::make('Visa/Mastercard', callback_data: "card/".$callback))
@@ -133,6 +145,38 @@ class PaymentMenu extends InlineMenu
         createPayment($bot->userId(), SUBSCRIPTION_PRICE, $description);
         $paymentId = getLastPendingPayment($bot->userId());
         $payload = $paymentId . " " . $chanelId;
+        $bot->sendInvoice(
+            title: $title,
+            description: $description,
+            payload: $payload,
+            provider_token: $payment_token_provider,
+            currency: $currency,
+            prices: $prices,
+            need_name: True,
+            need_phone_number: True,
+            need_email: True,
+            need_shipping_address: false
+        );
+        $this->end();
+    }
+
+    public function handleDonation(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        list($paymentType, $amount) = explode("/", $bot->callbackQuery()->data);   
+        $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+        $description = $amount."$ donation";
+        $title = $description;
+        $currency = "USD";
+        $prices = [
+            [
+                'label' => $title,
+                'amount' => $amount * 100
+            ]
+        ];
+        createPayment($bot->userId(), $amount, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
+        $payload = $paymentId;
         $bot->sendInvoice(
             title: $title,
             description: $description,

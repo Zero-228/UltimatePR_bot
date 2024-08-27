@@ -37,6 +37,7 @@ class SupportMenu extends InlineMenu
         $this->clearButtons()->menuText(msg('welcome_support_msg', $lang))
             ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), url: "https://google.com/"))
             ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@contactSupport'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('donate', $lang), callback_data: '@donate'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
@@ -81,6 +82,37 @@ class SupportMenu extends InlineMenu
     {
         $bot->sendMessage(msg('canceled', lang($bot->userId())));
         $this->end();
+    }
+
+    protected function donate(Nutgram $bot)
+    {
+        $lang = lang($bot->userId());
+        
+        $update = $bot->update();
+        $amount = isset($update->message) ? $update->message->text : "";
+        $msg = msg('donate_menu', $lang);
+        $this->clearButtons();
+        if ($amount != "" && $amount > 0) {
+            $msg .= msg('donate_confirm', $lang) . $amount;
+            try {
+                $bot->deleteMessage($bot->userId(), $bot->messageId());
+            } catch (Exception $e) {
+                error_log($e);
+            }
+            $this->addButtonRow(InlineKeyboardButton::make(msg('donate', $lang), callback_data: $amount.'@payDonate'));
+        }
+        $this->menuText($msg)
+        ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
+        ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
+        ->orNext('donate')
+        ->showMenu();
+    }
+
+    protected function payDonate(Nutgram $bot, $amount) {
+        $paymentData = $amount . ' donation';
+        $this->end();
+        $paymentMenu = new PaymentMenu($bot);
+        $paymentMenu->paymentMethod($bot, $paymentData);
     }
 
     protected function none(Nutgram $bot)

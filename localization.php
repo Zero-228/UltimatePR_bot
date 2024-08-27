@@ -104,8 +104,9 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
-
-
+		'donate' => "Donate 💸",
+		'donate_menu' => "We thank you for you good intentions 😇 \n\nPlease, enter the desired amount for donation",
+		'donate_confirm' => "\n\nDonation amount: "
 
 
 		/*
@@ -201,6 +202,9 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
+		'donate' => "Пожертвовать 💸",
+		'donate_menu' => "Спасибо за ваши благие намерения! 😇 \n\n Пожалуйста, введите сумму, которую желаете пожертвовать",
+		'donate_confirm' => "\n\nCумма пожертвования: "
 	),
 
 	'uk' => array(
@@ -291,6 +295,9 @@ $languages = array(
 		'no_chanel_found' => "❗️Bot isn't added to the group you needed. Correct that and then we'll talk",
 		'no_permissions' => "❗️You don't have permissions to do that",
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
+		'donate' => "Задонатити 💸",
+		'donate_menu' => "Дякуємо за ваші благі наміри 😇 \n\nБудь ласка, напишіть суму бажаної пожертви",
+		'donate_confirm' => "\n\nСума пожертви: "
 	),
 );
 
