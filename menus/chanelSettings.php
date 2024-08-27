@@ -38,13 +38,14 @@ class ChanelSettings extends InlineMenu
         $groups = checkUsersChanel($bot->userId());
         $deeplink = new DeepLink();
         $adminConf = ['post_messages', 'edit_messages', 'delete_messages', 'restrict_members', 'invite_users', 'pin_messages', 'manage_topics', 'manage_chat', 'anonymous'];
-        $deep_link = $deeplink->startGroup(BOT_USERNAME, '', $adminConf);
+        $deep_link_chanel = $deeplink->startChannel(BOT_USERNAME, $adminConf);
+        $deep_link_group = $deeplink->startGroup(BOT_USERNAME, '', $adminConf);
         if ($groups == 'chanel_not_found') {
             //$this->next('addChanel');
-            $this->clearButtons()->menuText(msg('no_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link))
+            $this->clearButtons()->menuText(msg('no_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link_chanel), InlineKeyboardButton::make(msg('add_group_btn', $lang), url: $deep_link_group))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))->orNext('none')->showMenu();
         } else {
-            $this->clearButtons()->menuText(msg('select_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link));
+            $this->clearButtons()->menuText(msg('select_chanel', $lang))->addButtonRow(InlineKeyboardButton::make(msg('add_chanel_btn', $lang), url: $deep_link_chanel), InlineKeyboardButton::make(msg('add_group_btn', $lang), url: $deep_link_group));
             foreach ($groups as $chanel) {
                 $name = $chanel['name'];
                 $role = $chanel['role'];

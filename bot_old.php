@@ -28,10 +28,11 @@ use SergiX44\Nutgram\Conversations\InlineMenu;
 use SergiX44\Nutgram\Conversations\Conversation;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardMarkup;
 use SergiX44\Nutgram\Telegram\Types\Keyboard\InlineKeyboardButton;
-use SergiX44\Nutgram\Telegram\Types\Chat\ChatPermissions;
 use SergiX44\Nutgram\Telegram\Types\Chat\Chat;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Psr16Cache;
+use SergiX44\Nutgram\Telegram\Types\Chat\ChatPermissions;
+
 
 $filesystemAdapter = new FilesystemAdapter();
 $cacheo = new Psr16Cache($filesystemAdapter);
@@ -76,25 +77,29 @@ $bot->onMyChatMember(function(Nutgram $bot){
     $lang = lang($bot->userId());
     $role = checkRole($bot->userId());
     $myChatMember = $bot->update()->my_chat_member;
+    $isBot = $bot->message()->is_bot;
     $newStatus = $myChatMember->new_chat_member->status;
     $newStatus = json_encode($newStatus);
-    $chanelStatus = checkChanel($bot->chatId());
     error_log($newStatus);
 
-    switch ($chanelStatus) {
-        case 'no_such_chanel':
-            if ($newStatus == '"kicked"' || $newStatus == '"left"'){
-                break; 
-            } else {
+    if (!$isBot) {
+        if ($newStatus == '"kicked"' || $newStatus == '"left"' ) {
+            updateChanelStatus($bot->chatId(), 'unactive');
+        } elseif($newStatus == '"administrator"' || $newStatus == '"user"') {
+            $chanelStatus = checkChanel($bot->chatId());
+            sleep(1);
+            if ($chanelStatus == 'no_such_chanel') {
                 $chanel_info = get_object_vars($bot->chat());
                 createChanel($chanel_info);
+                sleep(1);
                 $admins = $bot->getChatAdministrators($bot->chatId());
+                writeLogFile($admins);
                 if ($admins) {
                     foreach ($admins as $administrator) {
                         if (!$administrator->user->is_bot) {
                             $userExistence = checkUser($administrator->user->id);
                             if ($userExistence == 'no_such_user') {
-                                createUser(get_object_vars($administrator->user));
+                                createUser($administrator->user);
                             }
                             $role = json_encode($administrator->status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
                             $role = trim($role, '"');
@@ -110,27 +115,52 @@ $bot->onMyChatMember(function(Nutgram $bot){
                                 updateUserRoleInChanel($bot->userId(), $bot->chatId(), $role);
                             }                                                
                         }
-                        sleep(1);
                     }
                 }
+                $bot->deleteMessage($bot->userId(), $bot->messageId());
                 $bot->sendMessage(msg('chanel_added', $lang), chat_id: $bot->userId());
-                createLog(TIME_NOW, checkRole($bot->userId()), $bot->userId(), 'added chanel', $bot->chatId());
-                break;
+                createLog(TIME_NOW, $role, $bot->userId(), 'added chanel', $bot->chatId());
+            } elseif ($chanelStatus == 'one_chanel') {
+                if ($bot->userId() != BOT_ID) {
+                    updateChanelStatus($bot->chatId(), 'active');
+                    $bot->sendMessage(msg('chanel_exists', $lang), chat_id: $bot->userId());
+                }
+            } else {
+                $bot->sendMessage(text: 'Twin chanel. ID - '.$bot->chatId(), chat_id: ADMIN_ID);
             }
-
-        case 'one_chanel':
-            if ($newStatus == '"kicked"' || $newStatus == '"left"') {
-               updateChanelStatus($bot->chatId(), 'unactive'); 
-            } elseif ($newStatus == '"administrator"' || $newStatus == '"user"') {
-                updateChanelStatus($bot->chatId(), 'active');
-                $bot->sendMessage(msg('chanel_exists', $lang), chat_id: $bot->userId());
-            }
-            break;
-        
-        default:
-            $bot->sendMessage(text: 'Twin chanel. ID - '.$bot->chatId(), chat_id: ADMIN_ID);
-            break;
+        } else {
+            $bot->sendMessage(text: 'So why?', chat_id: ADMIN_ID);
+        }
     }
+});
+
+$bot->onCallbackQueryData('callback_change_lang_to {param}', function (Nutgram $bot, $param) {
+    changeLanguage($bot->userId(), $param);
+    try {
+        $bot->deleteMessage($bot->userId(), $bot->messageId());
+    } catch (Exception $e) {
+        error_log($e);
+    }
+    $bot->sendMessage(msg('language_changed', lang($bot->userId())), reply_markup: constructMenuButtons(lang($bot->userId())));
+    $bot->answerCallbackQuery();
+});
+
+$bot->onCallbackQueryData('passCapcha', function (Nutgram $bot) {
+    $chanelId = $bot->chat()->id;
+    $capcha = checkCapcha($bot->userId(), $chanelId);
+    if ($capcha['status'] == 'pending') {
+        updateCapcha($bot->userId(), $chanelId, 'approved');
+    }
+    $log = getCapchaLog($bot->userId(), $chanelId);
+    foreach ($log as $cpcha) {
+        try {
+            $bot->deleteMessage($chanelId, $cpcha['messageId']);
+        } catch (Exception $e) {
+            error_log($e);
+        }
+        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $cpcha['messageId']);
+    }
+    $bot->answerCallbackQuery();
 });
 
 $bot->onCallbackQueryData('callback_cancel', function (Nutgram $bot) {
@@ -170,17 +200,26 @@ $bot->onMessage(function (Nutgram $bot) {
         $paymentMenu = new PaymentMenu($bot);
         $paymentMenu->start($bot);
     } elseif(str_contains($text, msg('change_language', $lang))) {
-        $languageMenu = new LanguageMenu($bot);
-        $languageMenu->start($bot);
+        $changeLangInlineKeyboard = InlineKeyboardMarkup::make()->addRow(InlineKeyboardButton::make(msg('language', 'en'), null, null, 'callback_change_lang_to en'))->addRow(InlineKeyboardButton::make(msg('language', 'uk'), null, null, 'callback_change_lang_to uk'))->addRow(InlineKeyboardButton::make(msg('language', 'ru'), null, null, 'callback_change_lang_to ru'));
+        $bot->sendMessage(msg('choose_language', lang($bot->userId())), reply_markup: $changeLangInlineKeyboard);
     } elseif(str_contains($text, msg('menu_support', $lang))) {
         $supportMenu = new SupportMenu($bot);
         $supportMenu->start($bot);
     } else {
+        // Check if the message sender is a bot
         if ($isBot == false) {
+            // Check if the user is already in the system
             $checkUser = checkUser($bot->userId());
+            if ($checkUser == 'no_such_user') {
+                // Register the user if not found in the system
+                $user_info = get_object_vars($bot->user());
+                if (createUser($user_info)) {
+                    createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
+                }
+            }
+
             $chatId = $bot->chatId();
             $role = checkRole($bot->userId());
-
             $permissions = new ChatPermissions(
                 can_send_messages: false,
                 can_send_audios: false,
@@ -195,13 +234,7 @@ $bot->onMessage(function (Nutgram $bot) {
                 can_invite_users: false
             );
 
-            if ($checkUser == 'no_such_user') {
-                // Register the user if not found in the system
-                $user_info = get_object_vars($bot->user());
-                if (createUser($user_info)) {
-                    createLog(TIME_NOW, $role, $bot->userId(), 'registering', '/start');
-                }
-            }
+            // Log messages if not from bot itself and not a direct message
             if ($bot->chatId() != BOT_ID && $bot->chatId() != $bot->userId()) {
                 if (checkChanel($bot->chatId())) {
                     // Check if the user is added to the channel
@@ -215,83 +248,6 @@ $bot->onMessage(function (Nutgram $bot) {
                 }
                 $chanelId = $bot->chatId();
                 $settings = getChanelSettings($chanelId);
-
-                if ($settings['antibot'] == 'on') {
-                    //oleg
-                }
-
-                if ($settings['antiflood'] == 'on') {
-                    $prevMsg = getPrevMsg($bot->userId());
-                    $prevPrevMsg = getPrevMsg($bot->userId(), 2);
-                    if ($text == $prevPrevMsg['message']) {
-                        $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
-                        $bot->deleteMessage($chatId, $prevMsg['messageId']);
-                        $bot->deleteMessage($chatId, $bot->messageId());
-                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevPrevMsg['messageId']);
-                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevMsg['messageId']);
-                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
-
-                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 180);
-                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за флуд: ".$bot->userId(), $bot->messageId() + 1);
-                        $username = getUsername($bot->userId());
-                        $bot->sendMessage($chatId, msg('flood_msg', $lang, ['{username}' => $username]));
-                    }
-                }
-
-                if ($settings['antilink'] == 'on') {
-                    $username = getUsername($bot->userId());
-                    $counter = 0;
-                    if (str_contains($text, "//")) {$counter++;}
-                    if (str_contains($text, "www.")) {$counter++;}
-                    if (str_contains($text, "http:")) { $counter++;}
-                    if (str_contains($text, "https:")) {$counter++;}
-                    if ($counter>0) {
-                        try {
-                            $bot->deleteMessage($chatId, $bot->messageId());
-                            createChanelLog(TIME_NOW, 'user', $bot->userId(), $chatId, 'link', "Ссылка в чат", $bot->messageId() + 1);
-                            superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
-                            $bot->sendMessage(chat_id: $chatId, text: msg('link_msg', $lang, ['{username}' => $username]));
-                        } catch (Exception $e) {
-                            error_log($e);
-                        }
-                    }
-                    if (checkNumLog($chatId, $bot->userId(), 'link', "1 HOUR")>0) {
-
-                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 300);
-                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за ссылку: ".$bot->userId(), $bot->messageId() + 1);
-                    }
-                }
-
-                if ($settings['antispam'] == 'on') {
-                    $prevMsg = $cache->get("prevMsg_{$bot->userId()}");
-                    $prevPrevMsg = $cache->get("prevPrevMsg_{$bot->userId()}");
-                    if ($prevMsg && $prevMsg['message'] == $text && (strtotime($prevMsg['created_at']) + 5) > time()) {
-                            if ($prevPrevMsg && $prevPrevMsg['message'] == $text && (strtotime($prevPrevMsg['created_at']) + 10) > time()) {
-                                // Удалить сообщения
-                                $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
-                                $bot->deleteMessage($chatId, $prevMsg['messageId']);
-                                $bot->deleteMessage($chatId, $bot->messageId());
-
-                                // Проверка на наличие предупреждений за последний час
-                                $previousWarnings = checkPreviousWarnings($bot->userId(), $chatId, 3600);
-                                if ($previousWarnings < 1) {
-                                    // Отправить предупреждение
-                                    $username = getUsername($bot->userId());
-                                    $bot->sendMessage(chat_id: $chatId, text: msg("spam_warn", $lang, ['{username}'=>$username]));
-                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
-                                } else {
-                                    // Мут пользователя
-
-                                    $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 600);
-                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
-                                }
-                            }
-                        }
-
-                        // Обновление кэша предыдущих сообщений
-                        $cache->set("prevPrevMsg_{$bot->userId()}", $prevMsg);
-                        $cache->set("prevMsg_{$bot->userId()}", ['message' => $text, 'messageId' => $bot->messageId(), 'created_at' => time()]);
-                }
                 if ($settings['capcha'] == 'on') {
                     $checkCapcha = checkCapcha($bot->userId(), $chanelId);
                     if (!$checkCapcha) {
@@ -344,7 +300,79 @@ $bot->onMessage(function (Nutgram $bot) {
                 } else {
                     createChanelLog(TIME_NOW, 'user', $bot->userId(), $chanelId, 'message', $bot->message()->text, $bot->messageId());
                 }
+                if ($settings['antispam'] == 'on') {
+                    $prevMsg = $cache->get("prevMsg_{$bot->userId()}");
+                    $prevPrevMsg = $cache->get("prevPrevMsg_{$bot->userId()}");
+                    if ($prevMsg && $prevMsg['message'] == $text && (strtotime($prevMsg['created_at']) + 5) > time()) {
+                            if ($prevPrevMsg && $prevPrevMsg['message'] == $text && (strtotime($prevPrevMsg['created_at']) + 10) > time()) {
+                                // Удалить сообщения
+                                $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
+                                $bot->deleteMessage($chatId, $prevMsg['messageId']);
+                                $bot->deleteMessage($chatId, $bot->messageId());
 
+                                // Проверка на наличие предупреждений за последний час
+                                $previousWarnings = checkPreviousWarnings($bot->userId(), $chatId, 3600);
+                                if ($previousWarnings < 1) {
+                                    // Отправить предупреждение
+                                    $username = getUsername($bot->userId());
+                                    $bot->sendMessage(chat_id: $chatId, text: msg("spam_warn", $lang, ['{username}'=>$username]));
+                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'spam_warn', "Предупреждение за спам", $bot->messageId() + 1);
+                                } else {
+                                    // Мут пользователя
+
+                                    $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 600);
+                                    createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за повторный спам", $bot->messageId() + 1);
+                                }
+                            }
+                        }
+
+                        // Обновление кэша предыдущих сообщений
+                        $cache->set("prevPrevMsg_{$bot->userId()}", $prevMsg);
+                        $cache->set("prevMsg_{$bot->userId()}", ['message' => $text, 'messageId' => $bot->messageId(), 'created_at' => time()]);
+                }
+                if ($settings['antiflood'] == 'on') {
+                    $prevMsg = getPrevMsg($bot->userId());
+                    $prevPrevMsg = getPrevMsg($bot->userId(), 2);
+                    if ($text == $prevPrevMsg['message']) {
+                        $bot->deleteMessage($chatId, $prevPrevMsg['messageId']);
+                        $bot->deleteMessage($chatId, $prevMsg['messageId']);
+                        $bot->deleteMessage($chatId, $bot->messageId());
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevPrevMsg['messageId']);
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $prevMsg['messageId']);
+                        superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+
+                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 180);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за флуд: ".$bot->userId(), $bot->messageId() + 1);
+                        $username = getUsername($bot->userId());
+                        $bot->sendMessage($chatId, msg('flood_msg', $lang, ['{username}' => $username]));
+                    }
+                }
+                if ($settings['antilink'] == 'on') {
+                    $username = getUsername($bot->userId());
+                    $counter = 0;
+                    if (str_contains($text, "//")) {$counter++;}
+                    if (str_contains($text, "www.")) {$counter++;}
+                    if (str_contains($text, "http:")) { $counter++;}
+                    if (str_contains($text, "https:")) {$counter++;}
+                    if ($counter>0) {
+                        try {
+                            $bot->deleteMessage($chatId, $bot->messageId());
+                            createChanelLog(TIME_NOW, 'user', $bot->userId(), $chatId, 'link', "Ссылка в чат", $bot->messageId() + 1);
+                            superUpdater('chanel_log', 'status', 'deleted', 'messageId', $bot->messageId());
+                            $bot->sendMessage(chat_id: $chatId, text: msg('link_msg', $lang, ['{username}' => $username]));
+                        } catch (Exception $e) {
+                            error_log($e);
+                        }
+                    }
+                    if (checkNumLog($chatId, $bot->userId(), 'link', "1 HOUR")>0) {
+
+                        $bot->restrictChatMember($chatId, $bot->userId(), $permissions, null, time() + 300);
+                        createChanelLog(TIME_NOW, 'bot', ADMIN_ID, $chatId, 'mute', "Мут за ссылку: ".$bot->userId(), $bot->messageId() + 1);
+                    }
+                }
+                if ($settings['antibot'] == 'on') {
+
+                }
                 if ($settings['subscription'] == 'on') {
                     if ($role == 'user' && $isBot == false) {
                         $groups = checkSubscription($chatId);
@@ -371,7 +399,6 @@ $bot->onMessage(function (Nutgram $bot) {
                         }
                     }
                 }
-                
                 if (str_contains($text, "@setup")) {
                     if ($role == 'admin' || $role == 'creator' || $bot->userId() == 1087968824) {
                         $parts = explode(' ', $text);

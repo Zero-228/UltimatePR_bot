@@ -79,7 +79,7 @@ CREATE TABLE `chanel_log` (
 
 CREATE TABLE `chanel_settings` (
   `chanelId` bigint(25) NOT NULL,
-  `subscription` varchar(3) NOT NULL COMMENT '(on/off)',
+  `subscription` varchar(3) NOT NULL DEFAULT 'no' COMMENT '(on/off)',
   `unlocked` varchar(6) NOT NULL DEFAULT 'no' COMMENT '(no/yes/payed)',
   `access` varchar(7) NOT NULL DEFAULT 'admin' COMMENT '(creator/admin)',
   `capcha` varchar(3) NOT NULL DEFAULT 'off' COMMENT '(on/off)',

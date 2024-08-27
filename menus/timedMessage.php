@@ -132,6 +132,7 @@ class createTimedMessage extends InlineMenu
     protected function saveMessage(Nutgram $bot)
     {
         $userId = $bot->userId();
+        $lang = lang($bot->userId());
         $chanelId = $bot->getUserData('chanelId', $userId);
         $text = $bot->getUserData('messageText', $userId);
         $timer = $bot->getUserData('timer', $userId);
@@ -143,6 +144,7 @@ class createTimedMessage extends InlineMenu
     protected function updateMessage(Nutgram $bot)
     {
         $userId = $bot->userId();
+        $lang = lang($bot->userId());
         $msgId = $bot->callbackQuery()->data;
         $text = $bot->getUserData('messageText', $userId);
         $timer = $bot->getUserData('timer', $userId);

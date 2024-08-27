@@ -379,6 +379,14 @@ function getChanelSettings($chanelId) {
     return $access;
 }
 
+function getChanelUsername($chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT username FROM chanel WHERE chanelId='$chanelId'");
+    $access = mysqli_fetch_assoc($query);
+    mysqli_close($dbCon);
+    return $access['username'];
+}
+
 function checkCapcha($userId, $chanelId){
     $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
     $query = mysqli_query($dbCon, "SELECT status, created_at, updated_at FROM capcha WHERE chanelId='$chanelId' AND userId='$userId'");
@@ -501,6 +509,19 @@ function addSubscription($chanelFrom, $chanelTo, $timer){
     $timeNow = TIME_NOW;
     mysqli_query($dbCon, "INSERT INTO subscription (chanelFrom, status, chanelTo, timer, updated_at, created_at) VALUES ('$chanelFrom', 'active', '$chanelTo', '$timer', '$timeNow','$timeNow')");
     mysqli_close($dbCon);
+}
+
+function checkSubscription($chanelId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT * FROM subscription WHERE chanelFrom='$chanelId' AND status='active'");
+    
+    $groupInfo = [];
+    while ($row = mysqli_fetch_assoc($query)) {
+        $groupInfo[] = $row;
+    }
+    
+    mysqli_close($dbCon);
+    return $groupInfo;
 }
 
 function writeLogFile($string, $clear = false){
