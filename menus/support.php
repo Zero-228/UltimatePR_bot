@@ -108,9 +108,9 @@ class SupportMenu extends InlineMenu
         ->showMenu();
     }
 
-    protected function payDonate($amount) {
-        $this->end();
+    protected function payDonate(Nutgram $bot, $amount) {
         $paymentData = $amount + ' donation';
+        $this->end();
         $paymentMenu = new PaymentMenu($bot);
         $paymentMenu->paymentMethod($bot, $paymentData);
     }
