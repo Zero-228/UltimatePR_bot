@@ -109,7 +109,7 @@ class SupportMenu extends InlineMenu
     }
 
     protected function payDonate($amount) {
-        this->end();
+        $this->end();
         $paymentData = $amount + ' donation';
         $paymentMenu = new PaymentMenu($bot);
         $paymentMenu->paymentMethod($bot, $paymentData);
