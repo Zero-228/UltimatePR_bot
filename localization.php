@@ -106,7 +106,7 @@ $languages = array(
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 		'donate' => "Donate 💸",
 		'donate_menu' => "We thank you for you good intentions 😇 \n\nPlease, enter the desired amount for donation",
-		'donate_confirm' => "We thank you for you good intentions 😇 \n\nPlease, confirm the desired amount for donation"
+		'donate_confirm' => "\n\nDonation amount: "
 
 
 		/*
@@ -204,7 +204,7 @@ $languages = array(
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 		'donate' => "Пожертвовать 💸",
 		'donate_menu' => "Спасибо за ваши благие намерения! 😇 \n\n Пожалуйста, введите сумму, которую желаете пожертвовать",
-		'donate_confirm' => "Спасибо за ваши благие намерения 😇 \n\nПожалуйста, подтведите сумму, которую желаете пожертвовать"
+		'donate_confirm' => "\n\nCумма пожертвования: "
 	),
 
 	'uk' => array(
@@ -297,7 +297,7 @@ $languages = array(
 		'subscription_added' => "✅ Autosubscription to {chanelUsername} sucessfully added",
 		'donate' => "Задонатити 💸",
 		'donate_menu' => "Дякуємо за ваші благі наміри 😇 \n\nБудь ласка, напишіть суму бажаної пожертви",
-		'donate_confirm' => "Дякуємо за ваші благі наміри 😇 \n\nБудь ласка, підтвердіть суму бажаної пожертви"
+		'donate_confirm' => "\n\nСума пожертви: "
 	),
 );
 

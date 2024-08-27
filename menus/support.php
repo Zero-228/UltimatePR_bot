@@ -101,8 +101,6 @@ class SupportMenu extends InlineMenu
             }
             $this->addButtonRow(InlineKeyboardButton::make(msg('donate', $lang), callback_data: $amount.'@payDonate'));
         }
-
-        $this->clearButtons()->menuText($msg);
         $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@contactSupport'))
         ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
         ->orNext('donate')
