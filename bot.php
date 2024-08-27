@@ -483,11 +483,19 @@ $bot->onPreCheckoutQuery(function (Nutgram $bot) {
 $bot->onSuccessfulPayment(function (Nutgram $bot) {
     $message = $bot->update()->message;
     $order_info = $message->successful_payment->order_info;
-    $paymentId = $message->successful_payment->invoice_payload;
     updateUser('phone', $order_info->phone_number, 'userId', $bot->userId());
     updateUser('email', $order_info->email, 'userId', $bot->userId());
+if (!str_contains($paymentId, " ")) {
+    $paymentId = $message->successful_payment->invoice_payload;
     superUpdater('payment', 'status', 'paid', 'paymentId', $paymentId);
     $bot->sendMessage(text: "Payment has been completed successfully");
+}
+else if (str_contains($paymentId, " ")) {
+    list($paymentId, $chanelId) = explode(" ", $message->successful_payment->invoice_payload);
+    superUpdater('payment', 'status', 'paid', 'paymentId', $paymentId);
+    superUpdater('chanel_settings', 'unlocked', 'payed', 'chanelId', $chanelId);
+    $bot->SendMessage(msg('set_chanel_unlock', $lang));
+    }
 });
 
 $bot->run();

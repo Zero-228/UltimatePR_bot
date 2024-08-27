@@ -132,7 +132,7 @@ class PaymentMenu extends InlineMenu
         ];
         createPayment($bot->userId(), SUBSCRIPTION_PRICE, $description);
         $paymentId = getLastPendingPayment($bot->userId());
-        $payload = $paymentId;
+        $payload = $paymentId . " " . $chanelId;
         $bot->sendInvoice(
             title: $title,
             description: $description,
