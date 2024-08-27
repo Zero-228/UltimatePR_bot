@@ -37,6 +37,7 @@ class SupportMenu extends InlineMenu
         $this->clearButtons()->menuText(msg('welcome_support_msg', $lang))
             ->addButtonRow(InlineKeyboardButton::make(msg('frequent_msgs', $lang), url: "https://google.com/"))
             ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@contactSupport'))
+            ->addButtonRow(InlineKeyboardButton::make(msg('contact_support', $lang), callback_data: '@donate'))
             ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
             ->orNext('none')
             ->showMenu();
@@ -81,6 +82,14 @@ class SupportMenu extends InlineMenu
     {
         $bot->sendMessage(msg('canceled', lang($bot->userId())));
         $this->end();
+    }
+
+    public function donate(Nutgram $bot)
+    {
+        $chanelId = $bot->callbackQuery()->data;
+        $this->end();
+        $paymentMenu = new PaymentMenu($bot);
+        $paymentMenu->paymentMethod($bot, $chanelId);
     }
 
     protected function none(Nutgram $bot)
