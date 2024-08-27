@@ -91,12 +91,12 @@ class SupportMenu extends InlineMenu
         $update = $bot->update();
         $amount = isset($update->message) ? $update->message->text : "";
         $msg = msg('donate_menu', $lang);
-        $this->clearButtons()->menuText($msg);
         if ($amount != "" && $amount > 0) {
             $msg .= msg('donate_confirm', $lang) . $amount;
             $this->addButtonRow(InlineKeyboardButton::make(msg('donate', $lang), callback_data: $amount.'@payDonate'));
         }
-        $this->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
+        $this->clearButtons()->menuText($msg)
+        ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: '@start'))
         ->addButtonRow(InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
         ->orNext('donate')
         ->showMenu();
