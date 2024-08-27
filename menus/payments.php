@@ -127,10 +127,10 @@ class PaymentMenu extends InlineMenu
         $prices = [
             [
                 'label' => $title,
-                'amount' => SUBSRIPTION_PRICE * 100
+                'amount' => SUBSCRIPTION_PRICE * 100
             ]
         ];
-        createPayment($bot->userId(), SUBSRIPTION_PRICE, $description);
+        createPayment($bot->userId(), SUBSCRIPTION_PRICE, $description);
         $paymentId = getLastPendingPayment($bot->userId());
         $payload = $paymentId;
         $bot->sendInvoice(

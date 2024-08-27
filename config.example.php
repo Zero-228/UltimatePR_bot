@@ -22,8 +22,8 @@ define("WEBHOOK_URL", "");
 define("BOT_USERNAME", "");
 define("BOT_ID", "");
 define("ADMIN_ID", "");
-
-define("SUBSCRIPTION_PRICE", "0.75");
+define("PAYMENT_TOKEN_PROVIDER", "");
+define("SUBSCRIPTION_PRICE", "");
 
 define("DB_HOST", "");
 define("DB_USER", "");
