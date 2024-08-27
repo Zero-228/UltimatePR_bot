@@ -42,6 +42,14 @@ class PaymentMenu extends InlineMenu
             ->showMenu();
     }
 
+    # TODO Add paymentHandler
+    ## 3 invoice options:
+    ### 1. One-time post to groups
+    ### 2. Repeated post to groups
+    ### 3. One-time post to bot users
+    ## 1 subscription options:
+    ### access to all features for 75c/week
+
     public function paymentMethod(Nutgram $bot, $chanelId = null)
     {
         $lang = lang($bot->userId());
@@ -70,18 +78,74 @@ class PaymentMenu extends InlineMenu
     {
         $lang = lang($bot->userId());
         list($paymentType, $amount) = explode("/", $bot->callbackQuery()->data);
-        $this->clearButtons()->menuText("Amount: $amount!")
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $amount."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->showMenu();
+        $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+        switch ($amount) {
+            case 3:
+                $description = "Opt 1";
+                break;
+            case 5:
+                $description = "Opt 2";
+                break;
+            case 8:
+                $description = "Opt 3";
+                break;
+        }
+        $title = "Payment for " . $description;
+        $currency = "USD";
+        $prices = [
+            [
+                'label' => $title,
+                'amount' => $amount * 100
+            ]
+        ];
+        createPayment($bot->userId(), $amount, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
+        $payload = $paymentId;
+        $bot->sendInvoice(
+            title: $title,
+            description: $description,
+            payload: $payload,
+            provider_token: $payment_token_provider,
+            currency: $currency,
+            prices: $prices,
+            need_name: True,
+            need_phone_number: True,
+            need_email: True,
+            need_shipping_address: false
+        );
+        $this->end();
     }
 
     public function handleSubscription(Nutgram $bot)
     {
         $lang = lang($bot->userId());
-        list($paymentType, $chanelId) = explode("/", $bot->callbackQuery()->data);
-        $this->clearButtons()->menuText("Channel ID: $chanelId!")
-            ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $chanelId."@paymentMethod"),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'))
-            ->showMenu();
+        list($paymentType, $chanelId) = explode("/", $bot->callbackQuery()->data);   
+        $payment_token_provider = PAYMENT_TOKEN_PROVIDER;
+        $description = "1 week subscription";
+        $title = "Subscription to access pro features in group";
+        $currency = "USD";
+        $prices = [
+            [
+                'label' => $title,
+                'amount' => SUBSCRIPTION_PRICE * 100
+            ]
+        ];
+        createPayment($bot->userId(), SUBSCRIPTION_PRICE, $description);
+        $paymentId = getLastPendingPayment($bot->userId());
+        $payload = $paymentId . " " . $chanelId;
+        $bot->sendInvoice(
+            title: $title,
+            description: $description,
+            payload: $payload,
+            provider_token: $payment_token_provider,
+            currency: $currency,
+            prices: $prices,
+            need_name: True,
+            need_phone_number: True,
+            need_email: True,
+            need_shipping_address: false
+        );
+        $this->end();
     }
 
     public function cancel(Nutgram $bot)

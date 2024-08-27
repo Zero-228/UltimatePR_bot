@@ -180,6 +180,7 @@ $bot->onCallbackQueryData('callback_cancel', function (Nutgram $bot) {
 $bot->onMessage(function (Nutgram $bot) {
     $role = checkRole($bot->userId());
     $text = $bot->message()->text;
+    error_log($text);
     $isBot = $bot->message()->is_bot;
     $chatId = $bot->chat()->id;
     $lang = lang($bot->userId());
@@ -459,6 +460,42 @@ $bot->onMessage(function (Nutgram $bot) {
                 }
             }
         }
+    }
+});
+
+$bot->onPreCheckoutQuery(function (Nutgram $bot) {
+    $pre_checkout_query = $bot->update()->pre_checkout_query;
+    $invoice_payload = $pre_checkout_query->invoice_payload;
+    if ($invoice_payload) {
+        $bot->answerPreCheckoutQuery(
+            ok: true,
+            pre_checkout_query_id: $pre_checkout_query->id
+        );
+    } else {
+        superUpdater('payment', 'status', 'canceled', 'paymentId', $paymentId);
+        $bot->answerPreCheckoutQuery(
+            ok: false,
+            error_message: "empty payload" 
+        );
+    }
+});
+
+$bot->onSuccessfulPayment(function (Nutgram $bot) {
+    $message = $bot->update()->message;
+    $order_info = $message->successful_payment->order_info;
+    updateUser('phone', $order_info->phone_number, 'userId', $bot->userId());
+    updateUser('email', $order_info->email, 'userId', $bot->userId());
+    $payload = $message->successful_payment->invoice_payload;
+if (!str_contains($payload, " ")) {
+    $paymentId = $payload;
+    superUpdater('payment', 'status', 'paid', 'paymentId', $paymentId);
+    $bot->sendMessage(text: "Payment has been completed successfully");
+}
+else if (str_contains($payload, " ")) {
+    list($paymentId, $chanelId) = explode(" ", $payload);
+    superUpdater('payment', 'status', 'paid', 'paymentId', $paymentId);
+    superUpdater('chanel_settings', 'unlocked', 'payed', 'chanelId', $chanelId);
+    $bot->SendMessage(msg('set_chanel_unlock', $lang));
     }
 });
 

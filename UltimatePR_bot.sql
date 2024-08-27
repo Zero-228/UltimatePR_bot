@@ -193,6 +193,17 @@ CREATE TABLE `users_in_chanels` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE ultimatepr_bot_db.payment (
+	`paymentId` INT auto_increment NOT NULL,
+	`userId` BIGINT NOT NULL,
+	`status` varchar(10) NOT NULL,
+	`amount` FLOAT NOT NULL,
+  `description` TEXT NOT NULL,
+	`created_at` DATETIME NOT NULL,
+	`updated_at` DATETIME NOT NULL,
+  CONSTRAINT payment_pk PRIMARY KEY (paymentId)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 --
 -- Индексы сохранённых таблиц
 --
