@@ -290,8 +290,6 @@ class ChanelSettings extends InlineMenu
                 ->orNext('none')
                 ->showMenu();
         }
-        
-
     }
 
     public function cancel(Nutgram $bot)
