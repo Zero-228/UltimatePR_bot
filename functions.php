@@ -536,4 +536,12 @@ function writeLogFile($string, $clear = false){
         file_put_contents($log_file_name, $timeNow." ".print_r($string, true)."\r\n", FILE_APPEND);
     }
 }
+
+function getItmedMessageStatus($timedMessageId) {
+    $dbCon = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $query = mysqli_query($dbCon, "SELECT status FROM timed_message WHERE id='$timedMessageId'");
+    mysqli_close($dbCon);
+    $status = mysqli_fetch_assoc($query);
+    return $status['status'];
+}
 ?>

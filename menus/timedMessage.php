@@ -32,7 +32,10 @@ class createTimedMessage extends InlineMenu
     public function start(Nutgram $bot, $chanelId = "")
     {
         if ($chanelId == "") {
-            $chanelId = $bot->callbackQuery()->data;
+            list($msgId, $chanelId) = explode("/", $bot->callbackQuery()->data);
+            if (isset($msgId)) {
+                $bot->setUserData('msgId', $msgId, $bot->userId());
+            }
         }
         $lang = lang($bot->userId());
         $bot->setUserData('chanelId', $chanelId, $bot->userId());
@@ -51,12 +54,13 @@ class createTimedMessage extends InlineMenu
         }
         $chanelId = $bot->getUserData('chanelId', $bot->userId());
         $text = $bot->message()->text;
+        $text = mb_convert_encoding($text, 'UTF-8', 'auto');
         $lang = lang($bot->userId());
         $msg = msg('your_timed_msg', $lang).$text;
         $bot->setUserData('messageText', $text, $bot->userId());
         $this->clearButtons()->menuText($msg)
             ->addButtonRow(InlineKeyboardButton::make(msg('back', $lang), callback_data: $chanelId.'@start'),InlineKeyboardButton::make(msg('cancel', $lang), callback_data: '@cancel'),InlineKeyboardButton::make(msg('confirm', $lang), callback_data: '@showMessage'))
-            ->orNext('none')->showMenu();
+            ->orNext('handleMessage')->showMenu();
     }
 
     public function showMessage(Nutgram $bot, $timedMessageId = 0)
@@ -65,14 +69,17 @@ class createTimedMessage extends InlineMenu
         $lang = lang($bot->userId());
         $userId = $bot->userId();
         if ($timedMessageId == 0) {
-            $timedMessageId = $bot->callbackQuery()->data;
+            $timedMessageId = $bot->getUserData('msgId', $userId);
+            if ($timedMessageId == 0) {
+                $timedMessageId = $bot->callbackQuery()->data;
+            }
         }
         $chanelId = $bot->getUserData('chanelId', $userId);
         $text = $bot->getUserData('messageText', $userId);
         $timer = $bot->getUserData('timer', $userId);
         $status = $bot->getUserData('status', $userId);
         if ($status == NULL) {
-            $status = "unsaved";
+            $status = getItmedMessageStatus($timedMessageId);
         }
         $bot->setUserData('status', $status, $userId);
         if (is_numeric($timedMessageId) && $timedMessageId != 0) {
@@ -105,9 +112,7 @@ class createTimedMessage extends InlineMenu
             $bot->setUserData('timer', $timer, $userId);
         }
         
-        $title = substr($text, 0, 66); 
-        if(strlen($text) > 65){ $title .= "..."; }
-        $msg = msg('your_timed_msg', $lang) . $title . "\n\n" . msg('timed_msg_timer', $lang) . $timer . "\n" . msg('timed_msg_status', $lang) . $status;
+        $msg = msg('your_timed_msg', $lang) . $text . "\n\n" . msg('timed_msg_timer', $lang) . $timer . "\n" . msg('timed_msg_status', $lang) . $status;
         
         $this->clearButtons()->menuText($msg)
             ->addButtonRow(
@@ -116,11 +121,15 @@ class createTimedMessage extends InlineMenu
                 InlineKeyboardButton::make(msg('on_off', $lang), callback_data: $timedMessageId.'@setStatus')
             );
         $btnBack = msg('cancel', $lang);
-        $saveCallback = '@saveMessage';
+        $saveCallback = '';
         if (is_numeric($timedMessageId) && $timedMessageId != 0) {
             $this->addButtonRow(
                 InlineKeyboardButton::make(msg('delete_timed_msg', $lang), callback_data: $timedMessageId.'/status/deleted@updateTimedMessage'));
             $btnBack = msg('back', $lang);
+        }
+        if ($status == 'unsaved') {
+            $saveCallback = '@saveMessage';
+        } else {
             $saveCallback = $timedMessageId.'@updateMessage';
         }
         $this->addButtonRow(
@@ -136,6 +145,7 @@ class createTimedMessage extends InlineMenu
         $chanelId = $bot->getUserData('chanelId', $userId);
         $text = $bot->getUserData('messageText', $userId);
         $timer = $bot->getUserData('timer', $userId);
+        $bot->setUserData('status', 'on', $userId);
         $status = $bot->getUserData('status', $userId);
         createTimedMessage($chanelId, $text, $status, $timer);
         $this->clearButtons()->menuText(msg('msg_saved', $lang))->addButtonRow(InlineKeyboardButton::make(msg('confirm', $lang), callback_data: '@back'))->orNext('none')->showMenu();
@@ -145,10 +155,14 @@ class createTimedMessage extends InlineMenu
     {
         $userId = $bot->userId();
         $lang = lang($bot->userId());
-        $msgId = $bot->callbackQuery()->data;
+        $msgId = $bot->getUserData('msgId', $userId);
         $text = $bot->getUserData('messageText', $userId);
         $timer = $bot->getUserData('timer', $userId);
         $status = $bot->getUserData('status', $userId);
+        error_log($text);
+        error_log($timer);
+        error_log($status);
+        error_log($msgId);
         updateTimedMessage($msgId, $text, $status, $timer);
         $this->clearButtons()->menuText(msg('msg_saved', lang($userId)))->addButtonRow(InlineKeyboardButton::make(msg('confirm', $lang), callback_data: '@back'))->orNext('none')->showMenu();
     }
