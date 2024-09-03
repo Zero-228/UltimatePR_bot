@@ -247,6 +247,7 @@ class createTimedMessage extends InlineMenu
         $bot->deleteUserData('messageText', $bot->userId());
         $bot->deleteUserData('timer', $bot->userId());
         $bot->deleteUserData('status', $bot->userId());
+        $bot->deleteUserData('msgId', $bot->userId());
     }
 
     protected function back(Nutgram $bot)
@@ -259,6 +260,7 @@ class createTimedMessage extends InlineMenu
         $bot->deleteUserData('messageText', $bot->userId());
         $bot->deleteUserData('timer', $bot->userId());
         $bot->deleteUserData('status', $bot->userId());
+        $bot->deleteUserData('msgId', $bot->userId());
     }
 
     protected function cancel(Nutgram $bot)
@@ -267,6 +269,7 @@ class createTimedMessage extends InlineMenu
         $bot->deleteUserData('messageText', $bot->userId());
         $bot->deleteUserData('timer', $bot->userId());
         $bot->deleteUserData('status', $bot->userId());
+        $bot->deleteUserData('msgId', $bot->userId());
         $bot->sendMessage(msg('canceled', lang($bot->userId())));
         $this->end();
     }
@@ -277,6 +280,7 @@ class createTimedMessage extends InlineMenu
         $bot->deleteUserData('messageText', $bot->userId());
         $bot->deleteUserData('timer', $bot->userId());
         $bot->deleteUserData('status', $bot->userId());
+        $bot->deleteUserData('msgId', $bot->userId());
         $text = $bot->message()->text;
         $lang = lang($bot->userId());
         if (str_contains($text, 'testMenu')) {
